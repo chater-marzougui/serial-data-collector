@@ -15,3 +15,6 @@ export { default as RulesEngine } from './RulesEngine';
 
 export { createSerialManager } from './SerialManager';
 export { default as SerialManager } from './SerialManager';
+
+export { createSerialWriter } from './SerialWriter';
+export { default as SerialWriter } from './SerialWriter';

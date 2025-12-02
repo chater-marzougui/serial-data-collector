@@ -1,4 +1,4 @@
-import type { LogLevel, LogEntry } from "../types";
+import type { LogLevel, LogEntry, SerialDirection } from "../types";
 
 type LogCallback = (entry: LogEntry) => void;
 
@@ -40,7 +40,7 @@ class Logger {
     return this.levelPriority[level] >= this.levelPriority[this.level];
   }
 
-  private log(level: LogLevel, message: string, data?: unknown): void {
+  private log(level: LogLevel, message: string, data?: unknown, direction?: SerialDirection): void {
     if (!this.shouldLog(level)) return;
 
     const entry: LogEntry = {
@@ -48,6 +48,7 @@ class Logger {
       level,
       message,
       data,
+      direction,
     };
 
     this.entries.push(entry);
@@ -61,7 +62,8 @@ class Logger {
       error: "color: red; font-weight: bold",
     };
 
-    const prefix = `[${level.toUpperCase()}]`;
+    const dirPrefix = direction ? `[${direction}] ` : "";
+    const prefix = `[${level.toUpperCase()}]${dirPrefix}`;
     if (data !== undefined) {
       console.log(`%c${prefix} ${message}`, styles[level], data);
     } else {
@@ -78,20 +80,29 @@ class Logger {
     }
   }
 
-  debug(message: string, data?: unknown): void {
-    this.log("debug", message, data);
+  debug(message: string, data?: unknown, direction?: SerialDirection): void {
+    this.log("debug", message, data, direction);
   }
 
-  info(message: string, data?: unknown): void {
-    this.log("info", message, data);
+  info(message: string, data?: unknown, direction?: SerialDirection): void {
+    this.log("info", message, data, direction);
   }
 
-  warn(message: string, data?: unknown): void {
-    this.log("warn", message, data);
+  warn(message: string, data?: unknown, direction?: SerialDirection): void {
+    this.log("warn", message, data, direction);
   }
 
-  error(message: string, data?: unknown): void {
-    this.log("error", message, data);
+  error(message: string, data?: unknown, direction?: SerialDirection): void {
+    this.log("error", message, data, direction);
+  }
+
+  // Convenience methods for TX/RX logging
+  tx(message: string, data?: unknown): void {
+    this.log("info", message, data, "TX");
+  }
+
+  rx(message: string, data?: unknown): void {
+    this.log("info", message, data, "RX");
   }
 
   getEntries(): LogEntry[] {
@@ -102,6 +113,10 @@ class Logger {
     return this.entries.filter((e) => e.level === level);
   }
 
+  getEntriesByDirection(direction: SerialDirection): LogEntry[] {
+    return this.entries.filter((e) => e.direction === direction);
+  }
+
   clear(): void {
     this.entries = [];
   }
@@ -110,9 +125,10 @@ class Logger {
     const logText = this.entries
       .map((e) => {
         const date = new Date(e.timestamp).toISOString();
+        const dirStr = e.direction ? ` [${e.direction}]` : "";
         const dataStr =
           e.data !== undefined ? ` | ${JSON.stringify(e.data)}` : "";
-        return `[${date}] [${e.level.toUpperCase()}] ${e.message}${dataStr}`;
+        return `[${date}] [${e.level.toUpperCase()}]${dirStr} ${e.message}${dataStr}`;
       })
       .join("\n");
 

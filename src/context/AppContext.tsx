@@ -11,17 +11,20 @@ import type {
   ConnectionStatus,
   CollectionStats,
   LogEntry,
+  SerialLogEntry,
 } from "../types";
 import {
   configLoader,
   logger,
   createSerialManager,
+  createSerialWriter,
   createParser,
   rulesEngine,
   createFormatter,
   downloadCSV,
 } from "../core";
 import type SerialManager from "../core/SerialManager";
+import type SerialWriter from "../core/SerialWriter";
 import type DataParser from "../core/DataParser";
 import type TemplateFormatter from "../core/TemplateFormatter";
 import type { AppContextType } from "./useApp";
@@ -47,9 +50,12 @@ export function AppProvider({ children }: AppProviderProps) {
     totalSamples: 0,
     classCounts: {},
   });
+  const [txLog, setTxLog] = useState<SerialLogEntry[]>([]);
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
 
   // Refs for managers
   const serialManagerRef = useRef<SerialManager | null>(null);
+  const serialWriterRef = useRef<SerialWriter | null>(null);
   const parserRef = useRef<DataParser | null>(null);
   const formatterRef = useRef<TemplateFormatter | null>(null);
   const recordingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -63,7 +69,7 @@ export function AppProvider({ children }: AppProviderProps) {
   }, [config]);
 
   // Stop recording function - defined first so it can be referenced
-  const stopRecording = useCallback(() => {
+  const stopRecording = useCallback(async () => {
     isRecordingRef.current = false;
     currentClassRef.current = null;
     setIsRecording(false);
@@ -74,6 +80,11 @@ export function AppProvider({ children }: AppProviderProps) {
       recordingTimerRef.current = null;
     }
 
+    // Send automated command on recording stop
+    if (serialWriterRef.current && configRef.current.serialTx.enabled) {
+      await serialWriterRef.current.sendAutomatedCommand("onRecordingStop");
+    }
+
     logger.info("Recording stopped");
   }, []);
 
@@ -81,6 +92,9 @@ export function AppProvider({ children }: AppProviderProps) {
   const handleIncomingData = useCallback((line: string) => {
     // Update live data display
     setLiveData((prev) => [...prev.slice(-100), line]);
+
+    // Log RX data
+    logger.debug("RX", { data: line }, "RX");
 
     // Parse the line
     const parsed = parserRef.current?.parse(line);
@@ -133,6 +147,7 @@ export function AppProvider({ children }: AppProviderProps) {
   useEffect(() => {
     const currentConfig = configRef.current;
     serialManagerRef.current = createSerialManager(currentConfig.serial);
+    serialWriterRef.current = createSerialWriter(currentConfig.serialTx);
     parserRef.current = createParser(
       currentConfig.parser,
       currentConfig.fields
@@ -165,13 +180,20 @@ export function AppProvider({ children }: AppProviderProps) {
       handleIncomingData(line);
     });
 
+    // Subscribe to TX log
+    const unsubscribeTxLog = serialWriterRef.current.onTxLog((entry) => {
+      setTxLog((prev) => [...prev.slice(-999), entry]);
+    });
+
     logger.info("Application initialized");
 
     return () => {
       unsubscribeLogs();
       unsubscribeStatus();
       unsubscribeData();
+      unsubscribeTxLog();
       serialManagerRef.current?.disconnect();
+      serialWriterRef.current?.disconnect();
       if (recordingTimerRef.current) {
         clearTimeout(recordingTimerRef.current);
       }
@@ -182,6 +204,9 @@ export function AppProvider({ children }: AppProviderProps) {
   useEffect(() => {
     if (serialManagerRef.current) {
       serialManagerRef.current.updateConfig(config.serial);
+    }
+    if (serialWriterRef.current) {
+      serialWriterRef.current.updateConfig(config.serialTx);
     }
     if (parserRef.current) {
       parserRef.current.updateConfig(config.parser, config.fields);
@@ -219,10 +244,32 @@ export function AppProvider({ children }: AppProviderProps) {
   // Serial connection methods
   const connect = useCallback(async () => {
     if (!serialManagerRef.current) return false;
-    return serialManagerRef.current.connect();
+    const result = await serialManagerRef.current.connect();
+    
+    if (result && serialWriterRef.current) {
+      // Set up writer with the writable stream
+      const writable = serialManagerRef.current.getWritable();
+      serialWriterRef.current.setWriter(writable);
+      
+      // Send automated command on connect
+      if (configRef.current.serialTx.enabled) {
+        await serialWriterRef.current.sendAutomatedCommand("onConnect");
+      }
+    }
+    
+    return result;
   }, []);
 
   const disconnect = useCallback(async () => {
+    // Send automated command on disconnect
+    if (serialWriterRef.current && configRef.current.serialTx.enabled) {
+      await serialWriterRef.current.sendAutomatedCommand("onDisconnect");
+    }
+    
+    if (serialWriterRef.current) {
+      serialWriterRef.current.disconnect();
+    }
+    
     if (!serialManagerRef.current) return;
     await serialManagerRef.current.disconnect();
   }, []);
@@ -234,7 +281,7 @@ export function AppProvider({ children }: AppProviderProps) {
 
   // Recording methods
   const startRecording = useCallback(
-    (classId?: string) => {
+    async (classId?: string) => {
       const currentConfig = configRef.current;
       if (currentConfig.recording.enableLabeling && !classId) {
         logger.warn("No class selected for recording");
@@ -252,6 +299,16 @@ export function AppProvider({ children }: AppProviderProps) {
       }));
 
       logger.info("Recording started", { classId });
+
+      // Send automated command on recording start
+      if (serialWriterRef.current && currentConfig.serialTx.enabled) {
+        await serialWriterRef.current.sendAutomatedCommand("onRecordingStart");
+        
+        // Send class-specific command if configured
+        if (classId) {
+          await serialWriterRef.current.sendClassCommand(classId);
+        }
+      }
 
       // Auto-stop timer
       if (currentConfig.recording.autoStopSeconds > 0) {
@@ -308,6 +365,36 @@ export function AppProvider({ children }: AppProviderProps) {
     logger.downloadLogs();
   }, []);
 
+  // Serial TX methods
+  const sendCommand = useCallback(async (command: string): Promise<boolean> => {
+    if (!serialWriterRef.current) {
+      logger.error("Serial writer not initialized");
+      return false;
+    }
+    const result = await serialWriterRef.current.write(command);
+    // Always sync history state with the writer's internal history
+    setCommandHistory(serialWriterRef.current.getCommandHistory());
+    return result;
+  }, []);
+
+  const sendQuickCommand = useCallback(async (commandId: string): Promise<boolean> => {
+    if (!serialWriterRef.current) {
+      logger.error("Serial writer not initialized");
+      return false;
+    }
+    const result = await serialWriterRef.current.sendQuickCommand(commandId);
+    // Always sync history state with the writer's internal history
+    setCommandHistory(serialWriterRef.current.getCommandHistory());
+    return result;
+  }, []);
+
+  const clearCommandHistory = useCallback(() => {
+    if (serialWriterRef.current) {
+      serialWriterRef.current.clearHistory();
+      setCommandHistory([]);
+    }
+  }, []);
+
   const isSerialSupported =
     typeof navigator !== "undefined" && "serial" in navigator;
 
@@ -341,6 +428,13 @@ export function AppProvider({ children }: AppProviderProps) {
     logs,
     clearLogs,
     downloadLogs: downloadLogsFile,
+
+    // Serial TX
+    sendCommand,
+    sendQuickCommand,
+    commandHistory,
+    clearCommandHistory,
+    txLog,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
