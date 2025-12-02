@@ -60,10 +60,13 @@
     "noPreview": "لا توجد بيانات للمعاينة",
     "available": "متاح",
     "clearData": "مسح جميع البيانات المسجلة؟",
+    "resetToAuto": "إعادة تعيين إلى القالب الذي تم إنشاؤه تلقائيًا",
     "validation": {
       "unknownField": "حقل غير معروف: {{name}}",
       "emptyTemplate": "القالب فارغ",
-      "unclosedPlaceholder": "عنصر نائب غير مغلق"
+      "unclosedPlaceholder": "عنصر نائب غير مغلق",
+      "isDuplicated": "مكرر",
+      "duplicateFields": "تم اكتشاف حقول مكررة"
     }
   },
   "logs": {
@@ -109,7 +112,9 @@
       "splitDelimiter": "فاصل التقسيم",
       "regexPattern": "نمط Regex",
       "fields": "الحقول (مفصولة بفواصل)",
-      "skipLines": "تخطي الأسطر (أنماط، واحد لكل سطر)"
+      "skipLines": "تخطي الأسطر (أنماط، واحد لكل سطر)",
+      "isDuplicated": "مكرر",
+      "duplicateFields": "تم اكتشاف حقول مكررة"
     },
     "classes": {
       "id": "المعرف",

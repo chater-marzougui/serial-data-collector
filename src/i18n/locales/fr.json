@@ -60,10 +60,13 @@
     "noPreview": "Aucune donnée à prévisualiser",
     "available": "Disponible",
     "clearData": "Effacer toutes les données enregistrées ?",
+    "resetToAuto": "Réinitialiser au modèle généré automatiquement",
     "validation": {
       "unknownField": "Champ inconnu : {{name}}",
       "emptyTemplate": "Le modèle est vide",
-      "unclosedPlaceholder": "Placeholder non fermé"
+      "unclosedPlaceholder": "Placeholder non fermé",
+      "isDuplicated": "est dupliqué",
+      "duplicateFields": "Champs en double détectés"
     }
   },
   "logs": {
@@ -104,7 +107,9 @@
         "split": "Diviser par délimiteur",
         "regex": "Expression régulière",
         "json": "JSON",
-        "custom": "Analyseur personnalisé"
+        "custom": "Analyseur personnalisé",
+        "isDuplicated": "est dupliqué",
+        "duplicateFields": "Champs en double détectés"
       },
       "splitDelimiter": "Délimiteur de Division",
       "regexPattern": "Modèle Regex",

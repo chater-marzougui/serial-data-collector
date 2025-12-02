@@ -10,7 +10,12 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useApp } from "../context";
-import type { ClassConfig, RuleConfig, QuickCommand, ClassCommandConfig } from "../types";
+import type {
+  ClassConfig,
+  RuleConfig,
+  QuickCommand,
+  ClassCommandConfig,
+} from "../types";
 
 interface ConfigPanelProps {
   isOpen: boolean;
@@ -22,7 +27,14 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
   const { config, updateConfig, resetConfig, importConfig, exportConfig } =
     useApp();
   const [activeTab, setActiveTab] = useState<
-    "serial" | "parser" | "classes" | "rules" | "recording" | "logging" | "serialTx" | "ui"
+    | "serial"
+    | "parser"
+    | "classes"
+    | "rules"
+    | "recording"
+    | "logging"
+    | "serialTx"
+    | "ui"
   >("serial");
 
   if (!isOpen) return null;
@@ -74,7 +86,9 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t("config.title")}</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              {t("config.title")}
+            </h2>
           </div>
           <button
             onClick={onClose}
@@ -199,10 +213,16 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                   }
                   className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="split">{t("config.parser.types.split")}</option>
-                  <option value="regex">{t("config.parser.types.regex")}</option>
+                  <option value="split">
+                    {t("config.parser.types.split")}
+                  </option>
+                  <option value="regex">
+                    {t("config.parser.types.regex")}
+                  </option>
                   <option value="json">{t("config.parser.types.json")}</option>
-                  <option value="custom">{t("config.parser.types.custom")}</option>
+                  <option value="custom">
+                    {t("config.parser.types.custom")}
+                  </option>
                 </select>
               </div>
 
@@ -251,17 +271,77 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {t("config.parser.fields")}
                 </label>
+
+                {(() => {
+                  // Find duplicate fields
+                  const fieldCounts = new Map<string, number>();
+                  config.fields.forEach((field) => {
+                    fieldCounts.set(field, (fieldCounts.get(field) || 0) + 1);
+                  });
+                  const duplicates = Array.from(fieldCounts.entries())
+                    .filter(([_, count]) => count > 1)
+                    .map(([field, _]) => field);
+
+                  if (duplicates.length > 0) {
+                    return (
+                      <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg mb-2">
+                        <svg
+                          className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                          />
+                        </svg>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-1">
+                            {
+                              /* Duplicate Fields Detected */ t(
+                                "config.parser.duplicateFields"
+                              )
+                            }
+                          </h4>
+                          <p className="text-sm text-amber-800 dark:text-amber-200">
+                            {duplicates.map((field, i) => (
+                              <span key={field}>
+                                <strong>{field}</strong>{" "}
+                                {t("config.parser.isDuplicated")}
+                                {i < duplicates.length - 1 ? ", " : ""}
+                              </span>
+                            ))}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
                 <input
                   type="text"
                   value={config.fields.join(", ")}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // If the input ends with a comma or is being edited, keep it as-is temporarily
+                    // Only filter empty strings when there's no trailing comma or space
+                    const hasTrailingComma =
+                      value.endsWith(",") || value.endsWith(", ");
+
+                    const fields = value.split(",").map((f) => f.trim());
+
+                    // Only filter out empty strings if we're not actively typing
+                    const filteredFields = hasTrailingComma
+                      ? fields
+                      : fields.filter(Boolean);
                     updateConfig({
-                      fields: e.target.value
-                        .split(",")
-                        .map((f) => f.trim())
-                        .filter(Boolean),
-                    })
-                  }
+                      fields: filteredFields,
+                    });
+                  }}
                   className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="timestamp, value1, value2"
                 />
@@ -292,7 +372,7 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
           {activeTab === "classes" && (
             <div className="space-y-4">
               {config.classes.map((cls, index) => (
-                <div key={cls.id} className="flex gap-2 items-center">
+                <div key={index + 1} className="flex gap-2 items-center">
                   <input
                     type="text"
                     value={cls.id}
@@ -324,14 +404,30 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                     }}
                     className="bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="bg-blue-500">{t("config.classes.colors.blue")}</option>
-                    <option value="bg-green-500">{t("config.classes.colors.green")}</option>
-                    <option value="bg-purple-500">{t("config.classes.colors.purple")}</option>
-                    <option value="bg-orange-500">{t("config.classes.colors.orange")}</option>
-                    <option value="bg-pink-500">{t("config.classes.colors.pink")}</option>
-                    <option value="bg-cyan-500">{t("config.classes.colors.cyan")}</option>
-                    <option value="bg-yellow-500">{t("config.classes.colors.yellow")}</option>
-                    <option value="bg-red-500">{t("config.classes.colors.red")}</option>
+                    <option value="bg-blue-500">
+                      {t("config.classes.colors.blue")}
+                    </option>
+                    <option value="bg-green-500">
+                      {t("config.classes.colors.green")}
+                    </option>
+                    <option value="bg-purple-500">
+                      {t("config.classes.colors.purple")}
+                    </option>
+                    <option value="bg-orange-500">
+                      {t("config.classes.colors.orange")}
+                    </option>
+                    <option value="bg-pink-500">
+                      {t("config.classes.colors.pink")}
+                    </option>
+                    <option value="bg-cyan-500">
+                      {t("config.classes.colors.cyan")}
+                    </option>
+                    <option value="bg-yellow-500">
+                      {t("config.classes.colors.yellow")}
+                    </option>
+                    <option value="bg-red-500">
+                      {t("config.classes.colors.red")}
+                    </option>
                   </select>
                   <button
                     onClick={() => {
@@ -348,10 +444,32 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
               ))}
               <button
                 onClick={() => {
+                  // Available colors
+                  const availableColors = [
+                    "bg-blue-500",
+                    "bg-green-500",
+                    "bg-purple-500",
+                    "bg-orange-500",
+                    "bg-pink-500",
+                    "bg-cyan-500",
+                    "bg-yellow-500",
+                    "bg-red-500",
+                  ];
+
+                  // Get colors already in use
+                  const usedColors = new Set(
+                    config.classes.map((cls) => cls.color)
+                  );
+
+                  // Find first unused color, or default to blue
+                  const newColor =
+                    availableColors.find((color) => !usedColors.has(color)) ||
+                    "bg-blue-500";
+
                   const newClass: ClassConfig = {
                     id: `class${config.classes.length + 1}`,
                     name: `Class ${config.classes.length + 1}`,
-                    color: "bg-blue-500",
+                    color: newColor,
                   };
                   updateConfig({ classes: [...config.classes, newClass] });
                 }}
@@ -427,9 +545,15 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       }}
                       className="bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="label">{t("config.rules.actions.label")}</option>
-                      <option value="ignore">{t("config.rules.actions.ignore")}</option>
-                      <option value="log">{t("config.rules.actions.log")}</option>
+                      <option value="label">
+                        {t("config.rules.actions.label")}
+                      </option>
+                      <option value="ignore">
+                        {t("config.rules.actions.ignore")}
+                      </option>
+                      <option value="log">
+                        {t("config.rules.actions.log")}
+                      </option>
                     </select>
                     {rule.action === "label" && (
                       <input
@@ -633,7 +757,10 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                         updateConfig({
                           serialTx: {
                             ...config.serialTx,
-                            encoding: e.target.value as "utf-8" | "ascii" | "raw",
+                            encoding: e.target.value as
+                              | "utf-8"
+                              | "ascii"
+                              | "raw",
                           },
                         })
                       }
@@ -656,13 +783,19 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                         updateConfig({
                           serialTx: {
                             ...config.serialTx,
-                            lineEnding: e.target.value as "" | "\n" | "\r" | "\r\n",
+                            lineEnding: e.target.value as
+                              | ""
+                              | "\n"
+                              | "\r"
+                              | "\r\n",
                           },
                         })
                       }
                       className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="">{t("config.serialTx.noLineEnding")}</option>
+                      <option value="">
+                        {t("config.serialTx.noLineEnding")}
+                      </option>
                       <option value={"\n"}>LF (\n)</option>
                       <option value={"\r"}>CR (\r)</option>
                       <option value={"\r\n"}>CRLF (\r\n)</option>
@@ -676,14 +809,17 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                     </label>
                     <input
                       type="number"
-                      value={config.serialTx.automatedCommands.delayBetweenCommands}
+                      value={
+                        config.serialTx.automatedCommands.delayBetweenCommands
+                      }
                       onChange={(e) =>
                         updateConfig({
                           serialTx: {
                             ...config.serialTx,
                             automatedCommands: {
                               ...config.serialTx.automatedCommands,
-                              delayBetweenCommands: parseInt(e.target.value) || 0,
+                              delayBetweenCommands:
+                                parseInt(e.target.value) || 0,
                             },
                           },
                         })
@@ -705,8 +841,13 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                           type="checkbox"
                           checked={cmd.enabled}
                           onChange={(e) => {
-                            const newCommands = [...config.serialTx.quickCommands];
-                            newCommands[index] = { ...cmd, enabled: e.target.checked };
+                            const newCommands = [
+                              ...config.serialTx.quickCommands,
+                            ];
+                            newCommands[index] = {
+                              ...cmd,
+                              enabled: e.target.checked,
+                            };
                             updateConfig({
                               serialTx: {
                                 ...config.serialTx,
@@ -720,8 +861,13 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                           type="text"
                           value={cmd.label}
                           onChange={(e) => {
-                            const newCommands = [...config.serialTx.quickCommands];
-                            newCommands[index] = { ...cmd, label: e.target.value };
+                            const newCommands = [
+                              ...config.serialTx.quickCommands,
+                            ];
+                            newCommands[index] = {
+                              ...cmd,
+                              label: e.target.value,
+                            };
                             updateConfig({
                               serialTx: {
                                 ...config.serialTx,
@@ -736,8 +882,13 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                           type="text"
                           value={cmd.command}
                           onChange={(e) => {
-                            const newCommands = [...config.serialTx.quickCommands];
-                            newCommands[index] = { ...cmd, command: e.target.value };
+                            const newCommands = [
+                              ...config.serialTx.quickCommands,
+                            ];
+                            newCommands[index] = {
+                              ...cmd,
+                              command: e.target.value,
+                            };
                             updateConfig({
                               serialTx: {
                                 ...config.serialTx,
@@ -750,9 +901,10 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                         />
                         <button
                           onClick={() => {
-                            const newCommands = config.serialTx.quickCommands.filter(
-                              (_, i) => i !== index
-                            );
+                            const newCommands =
+                              config.serialTx.quickCommands.filter(
+                                (_, i) => i !== index
+                              );
                             updateConfig({
                               serialTx: {
                                 ...config.serialTx,
@@ -770,14 +922,19 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       onClick={() => {
                         const newCommand: QuickCommand = {
                           id: `cmd${Date.now()}`,
-                          label: `Button ${config.serialTx.quickCommands.length + 1}`,
+                          label: `Button ${
+                            config.serialTx.quickCommands.length + 1
+                          }`,
                           command: "",
                           enabled: true,
                         };
                         updateConfig({
                           serialTx: {
                             ...config.serialTx,
-                            quickCommands: [...config.serialTx.quickCommands, newCommand],
+                            quickCommands: [
+                              ...config.serialTx.quickCommands,
+                              newCommand,
+                            ],
                           },
                         });
                       }}
@@ -843,7 +1000,9 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       </label>
                       <input
                         type="text"
-                        value={config.serialTx.automatedCommands.onRecordingStart}
+                        value={
+                          config.serialTx.automatedCommands.onRecordingStart
+                        }
                         onChange={(e) =>
                           updateConfig({
                             serialTx: {
@@ -865,7 +1024,9 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       </label>
                       <input
                         type="text"
-                        value={config.serialTx.automatedCommands.onRecordingStop}
+                        value={
+                          config.serialTx.automatedCommands.onRecordingStop
+                        }
                         onChange={(e) =>
                           updateConfig({
                             serialTx: {
@@ -897,8 +1058,13 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                           type="checkbox"
                           checked={cmd.enabled}
                           onChange={(e) => {
-                            const newCommands = [...config.serialTx.classCommands];
-                            newCommands[index] = { ...cmd, enabled: e.target.checked };
+                            const newCommands = [
+                              ...config.serialTx.classCommands,
+                            ];
+                            newCommands[index] = {
+                              ...cmd,
+                              enabled: e.target.checked,
+                            };
                             updateConfig({
                               serialTx: {
                                 ...config.serialTx,
@@ -911,8 +1077,13 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                         <select
                           value={cmd.classId}
                           onChange={(e) => {
-                            const newCommands = [...config.serialTx.classCommands];
-                            newCommands[index] = { ...cmd, classId: e.target.value };
+                            const newCommands = [
+                              ...config.serialTx.classCommands,
+                            ];
+                            newCommands[index] = {
+                              ...cmd,
+                              classId: e.target.value,
+                            };
                             updateConfig({
                               serialTx: {
                                 ...config.serialTx,
@@ -922,7 +1093,9 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                           }}
                           className="bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
-                          <option value="">{t("config.serialTx.selectClass")}</option>
+                          <option value="">
+                            {t("config.serialTx.selectClass")}
+                          </option>
                           {config.classes.map((cls) => (
                             <option key={cls.id} value={cls.id}>
                               {cls.name}
@@ -933,8 +1106,13 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                           type="text"
                           value={cmd.command}
                           onChange={(e) => {
-                            const newCommands = [...config.serialTx.classCommands];
-                            newCommands[index] = { ...cmd, command: e.target.value };
+                            const newCommands = [
+                              ...config.serialTx.classCommands,
+                            ];
+                            newCommands[index] = {
+                              ...cmd,
+                              command: e.target.value,
+                            };
                             updateConfig({
                               serialTx: {
                                 ...config.serialTx,
@@ -947,9 +1125,10 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                         />
                         <button
                           onClick={() => {
-                            const newCommands = config.serialTx.classCommands.filter(
-                              (_, i) => i !== index
-                            );
+                            const newCommands =
+                              config.serialTx.classCommands.filter(
+                                (_, i) => i !== index
+                              );
                             updateConfig({
                               serialTx: {
                                 ...config.serialTx,
@@ -973,7 +1152,10 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                         updateConfig({
                           serialTx: {
                             ...config.serialTx,
-                            classCommands: [...config.serialTx.classCommands, newCommand],
+                            classCommands: [
+                              ...config.serialTx.classCommands,
+                              newCommand,
+                            ],
                           },
                         });
                       }}

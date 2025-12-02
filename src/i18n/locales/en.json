@@ -60,10 +60,13 @@
     "noPreview": "No data to preview",
     "available": "Available",
     "clearData": "Clear all recorded data?",
+    "resetToAuto": "Reset to auto-generated template",
     "validation": {
       "unknownField": "Unknown field: {{name}}",
       "emptyTemplate": "Template is empty",
-      "unclosedPlaceholder": "Unclosed placeholder"
+      "unclosedPlaceholder": "Unclosed placeholder",
+      "isDuplicated": "is duplicated",
+      "duplicateFields": "Duplicate Fields Detected"
     }
   },
   "logs": {
@@ -109,7 +112,9 @@
       "splitDelimiter": "Split Delimiter",
       "regexPattern": "Regex Pattern",
       "fields": "Fields (comma-separated)",
-      "skipLines": "Skip Lines (patterns, one per line)"
+      "skipLines": "Skip Lines (patterns, one per line)",
+      "isDuplicated": "is duplicated",
+      "duplicateFields": "Duplicate Fields Detected"
     },
     "classes": {
       "id": "ID",
