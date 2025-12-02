@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useApp } from "../context";
-import type { ClassConfig, RuleConfig } from "../types";
+import type { ClassConfig, RuleConfig, QuickCommand, ClassCommandConfig } from "../types";
 
 interface ConfigPanelProps {
   isOpen: boolean;
@@ -22,7 +22,7 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
   const { config, updateConfig, resetConfig, importConfig, exportConfig } =
     useApp();
   const [activeTab, setActiveTab] = useState<
-    "serial" | "parser" | "classes" | "rules" | "recording" | "logging"
+    "serial" | "parser" | "classes" | "rules" | "recording" | "logging" | "serialTx" | "ui"
   >("serial");
 
   if (!isOpen) return null;
@@ -58,11 +58,13 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
 
   const tabs = [
     { key: "serial" as const, label: t("config.tabs.serial") },
+    { key: "serialTx" as const, label: t("config.tabs.serialTx") },
     { key: "parser" as const, label: t("config.tabs.parser") },
     { key: "classes" as const, label: t("config.tabs.classes") },
     { key: "rules" as const, label: t("config.tabs.rules") },
     { key: "recording" as const, label: t("config.tabs.recording") },
     { key: "logging" as const, label: t("config.tabs.logging") },
+    { key: "ui" as const, label: t("config.tabs.ui") },
   ];
 
   return (
@@ -588,6 +590,432 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                   {t("config.logging.persistLogs")}
                 </label>
               </div>
+            </div>
+          )}
+
+          {/* Serial TX Tab */}
+          {activeTab === "serialTx" && (
+            <div className="space-y-6">
+              {/* Enable TX */}
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="enableTx"
+                  checked={config.serialTx.enabled}
+                  onChange={(e) =>
+                    updateConfig({
+                      serialTx: {
+                        ...config.serialTx,
+                        enabled: e.target.checked,
+                      },
+                    })
+                  }
+                  className="w-4 h-4 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500"
+                />
+                <label
+                  htmlFor="enableTx"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  {t("config.serialTx.enableTx")}
+                </label>
+              </div>
+
+              {config.serialTx.enabled && (
+                <>
+                  {/* TX Encoding */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      {t("config.serialTx.encoding")}
+                    </label>
+                    <select
+                      value={config.serialTx.encoding}
+                      onChange={(e) =>
+                        updateConfig({
+                          serialTx: {
+                            ...config.serialTx,
+                            encoding: e.target.value as "utf-8" | "ascii" | "raw",
+                          },
+                        })
+                      }
+                      className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="utf-8">UTF-8</option>
+                      <option value="ascii">ASCII</option>
+                      <option value="raw">{t("config.serialTx.rawHex")}</option>
+                    </select>
+                  </div>
+
+                  {/* Line Ending */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      {t("config.serialTx.lineEnding")}
+                    </label>
+                    <select
+                      value={config.serialTx.lineEnding}
+                      onChange={(e) =>
+                        updateConfig({
+                          serialTx: {
+                            ...config.serialTx,
+                            lineEnding: e.target.value as "" | "\n" | "\r" | "\r\n",
+                          },
+                        })
+                      }
+                      className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">{t("config.serialTx.noLineEnding")}</option>
+                      <option value={"\n"}>LF (\n)</option>
+                      <option value={"\r"}>CR (\r)</option>
+                      <option value={"\r\n"}>CRLF (\r\n)</option>
+                    </select>
+                  </div>
+
+                  {/* Command Delay */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      {t("config.serialTx.commandDelay")}
+                    </label>
+                    <input
+                      type="number"
+                      value={config.serialTx.automatedCommands.delayBetweenCommands}
+                      onChange={(e) =>
+                        updateConfig({
+                          serialTx: {
+                            ...config.serialTx,
+                            automatedCommands: {
+                              ...config.serialTx.automatedCommands,
+                              delayBetweenCommands: parseInt(e.target.value) || 0,
+                            },
+                          },
+                        })
+                      }
+                      className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      min="0"
+                      step="50"
+                    />
+                  </div>
+
+                  {/* Quick Commands */}
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {t("config.serialTx.quickCommands")}
+                    </h4>
+                    {config.serialTx.quickCommands.map((cmd, index) => (
+                      <div key={cmd.id} className="flex gap-2 items-center">
+                        <input
+                          type="checkbox"
+                          checked={cmd.enabled}
+                          onChange={(e) => {
+                            const newCommands = [...config.serialTx.quickCommands];
+                            newCommands[index] = { ...cmd, enabled: e.target.checked };
+                            updateConfig({
+                              serialTx: {
+                                ...config.serialTx,
+                                quickCommands: newCommands,
+                              },
+                            });
+                          }}
+                          className="w-4 h-4 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500"
+                        />
+                        <input
+                          type="text"
+                          value={cmd.label}
+                          onChange={(e) => {
+                            const newCommands = [...config.serialTx.quickCommands];
+                            newCommands[index] = { ...cmd, label: e.target.value };
+                            updateConfig({
+                              serialTx: {
+                                ...config.serialTx,
+                                quickCommands: newCommands,
+                              },
+                            });
+                          }}
+                          className="flex-1 bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder={t("config.serialTx.buttonLabel")}
+                        />
+                        <input
+                          type="text"
+                          value={cmd.command}
+                          onChange={(e) => {
+                            const newCommands = [...config.serialTx.quickCommands];
+                            newCommands[index] = { ...cmd, command: e.target.value };
+                            updateConfig({
+                              serialTx: {
+                                ...config.serialTx,
+                                quickCommands: newCommands,
+                              },
+                            });
+                          }}
+                          className="flex-1 bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder={t("config.serialTx.command")}
+                        />
+                        <button
+                          onClick={() => {
+                            const newCommands = config.serialTx.quickCommands.filter(
+                              (_, i) => i !== index
+                            );
+                            updateConfig({
+                              serialTx: {
+                                ...config.serialTx,
+                                quickCommands: newCommands,
+                              },
+                            });
+                          }}
+                          className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => {
+                        const newCommand: QuickCommand = {
+                          id: `cmd${Date.now()}`,
+                          label: `Button ${config.serialTx.quickCommands.length + 1}`,
+                          command: "",
+                          enabled: true,
+                        };
+                        updateConfig({
+                          serialTx: {
+                            ...config.serialTx,
+                            quickCommands: [...config.serialTx.quickCommands, newCommand],
+                          },
+                        });
+                      }}
+                      className="w-full p-2 border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-md hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 flex items-center justify-center gap-2 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      {t("config.serialTx.addQuickCommand")}
+                    </button>
+                  </div>
+
+                  {/* Automated Commands */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {t("config.serialTx.automatedCommands")}
+                    </h4>
+                    <div>
+                      <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                        {t("config.serialTx.onConnect")}
+                      </label>
+                      <input
+                        type="text"
+                        value={config.serialTx.automatedCommands.onConnect}
+                        onChange={(e) =>
+                          updateConfig({
+                            serialTx: {
+                              ...config.serialTx,
+                              automatedCommands: {
+                                ...config.serialTx.automatedCommands,
+                                onConnect: e.target.value,
+                              },
+                            },
+                          })
+                        }
+                        className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder={t("config.serialTx.optionalCommand")}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                        {t("config.serialTx.onDisconnect")}
+                      </label>
+                      <input
+                        type="text"
+                        value={config.serialTx.automatedCommands.onDisconnect}
+                        onChange={(e) =>
+                          updateConfig({
+                            serialTx: {
+                              ...config.serialTx,
+                              automatedCommands: {
+                                ...config.serialTx.automatedCommands,
+                                onDisconnect: e.target.value,
+                              },
+                            },
+                          })
+                        }
+                        className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder={t("config.serialTx.optionalCommand")}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                        {t("config.serialTx.onRecordingStart")}
+                      </label>
+                      <input
+                        type="text"
+                        value={config.serialTx.automatedCommands.onRecordingStart}
+                        onChange={(e) =>
+                          updateConfig({
+                            serialTx: {
+                              ...config.serialTx,
+                              automatedCommands: {
+                                ...config.serialTx.automatedCommands,
+                                onRecordingStart: e.target.value,
+                              },
+                            },
+                          })
+                        }
+                        className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder={t("config.serialTx.optionalCommand")}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                        {t("config.serialTx.onRecordingStop")}
+                      </label>
+                      <input
+                        type="text"
+                        value={config.serialTx.automatedCommands.onRecordingStop}
+                        onChange={(e) =>
+                          updateConfig({
+                            serialTx: {
+                              ...config.serialTx,
+                              automatedCommands: {
+                                ...config.serialTx.automatedCommands,
+                                onRecordingStop: e.target.value,
+                              },
+                            },
+                          })
+                        }
+                        className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder={t("config.serialTx.optionalCommand")}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Class Commands */}
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {t("config.serialTx.classCommands")}
+                    </h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {t("config.serialTx.classCommandsDescription")}
+                    </p>
+                    {config.serialTx.classCommands.map((cmd, index) => (
+                      <div key={index} className="flex gap-2 items-center">
+                        <input
+                          type="checkbox"
+                          checked={cmd.enabled}
+                          onChange={(e) => {
+                            const newCommands = [...config.serialTx.classCommands];
+                            newCommands[index] = { ...cmd, enabled: e.target.checked };
+                            updateConfig({
+                              serialTx: {
+                                ...config.serialTx,
+                                classCommands: newCommands,
+                              },
+                            });
+                          }}
+                          className="w-4 h-4 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500"
+                        />
+                        <select
+                          value={cmd.classId}
+                          onChange={(e) => {
+                            const newCommands = [...config.serialTx.classCommands];
+                            newCommands[index] = { ...cmd, classId: e.target.value };
+                            updateConfig({
+                              serialTx: {
+                                ...config.serialTx,
+                                classCommands: newCommands,
+                              },
+                            });
+                          }}
+                          className="bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                          <option value="">{t("config.serialTx.selectClass")}</option>
+                          {config.classes.map((cls) => (
+                            <option key={cls.id} value={cls.id}>
+                              {cls.name}
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          type="text"
+                          value={cmd.command}
+                          onChange={(e) => {
+                            const newCommands = [...config.serialTx.classCommands];
+                            newCommands[index] = { ...cmd, command: e.target.value };
+                            updateConfig({
+                              serialTx: {
+                                ...config.serialTx,
+                                classCommands: newCommands,
+                              },
+                            });
+                          }}
+                          className="flex-1 bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          placeholder={t("config.serialTx.command")}
+                        />
+                        <button
+                          onClick={() => {
+                            const newCommands = config.serialTx.classCommands.filter(
+                              (_, i) => i !== index
+                            );
+                            updateConfig({
+                              serialTx: {
+                                ...config.serialTx,
+                                classCommands: newCommands,
+                              },
+                            });
+                          }}
+                          className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => {
+                        const newCommand: ClassCommandConfig = {
+                          classId: "",
+                          command: "",
+                          enabled: true,
+                        };
+                        updateConfig({
+                          serialTx: {
+                            ...config.serialTx,
+                            classCommands: [...config.serialTx.classCommands, newCommand],
+                          },
+                        });
+                      }}
+                      className="w-full p-2 border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-md hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 flex items-center justify-center gap-2 transition-colors"
+                    >
+                      <Plus className="w-4 h-4" />
+                      {t("config.serialTx.addClassCommand")}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* UI Tab */}
+          {activeTab === "ui" && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="showVisualization"
+                  checked={config.ui.showVisualization}
+                  onChange={(e) =>
+                    updateConfig({
+                      ui: {
+                        ...config.ui,
+                        showVisualization: e.target.checked,
+                      },
+                    })
+                  }
+                  className="w-4 h-4 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500"
+                />
+                <label
+                  htmlFor="showVisualization"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  {t("config.ui.showVisualization")}
+                </label>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {t("config.ui.visualizationHint")}
+              </p>
             </div>
           )}
         </div>

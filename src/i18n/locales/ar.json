@@ -69,6 +69,8 @@
   "logs": {
     "title": "سجلات النظام",
     "allLevels": "جميع المستويات",
+    "txOnly": "TX فقط",
+    "rxOnly": "RX فقط",
     "debug": "تصحيح",
     "info": "معلومات",
     "warn": "تحذير",
@@ -83,11 +85,13 @@
     "title": "الإعدادات",
     "tabs": {
       "serial": "التسلسلي",
+      "serialTx": "إرسال تسلسلي",
       "parser": "المحلل",
       "classes": "الفئات",
       "rules": "القواعد",
       "recording": "التسجيل",
-      "logging": "التسجيل"
+      "logging": "التسجيل",
+      "ui": "الواجهة"
     },
     "serial": {
       "baudRate": "معدل البود",
@@ -147,11 +151,50 @@
       "maxEntries": "الحد الأقصى للإدخالات",
       "persistLogs": "حفظ السجلات في تخزين المتصفح"
     },
+    "serialTx": {
+      "enableTx": "تفعيل الإرسال التسلسلي (اتصال ثنائي الاتجاه)",
+      "encoding": "ترميز الإرسال",
+      "rawHex": "بايتات Hex خام",
+      "lineEnding": "نهاية السطر",
+      "noLineEnding": "بدون",
+      "commandDelay": "تأخير بين الأوامر (مللي ثانية)",
+      "quickCommands": "أزرار الأوامر السريعة",
+      "buttonLabel": "تسمية الزر",
+      "command": "الأمر",
+      "addQuickCommand": "إضافة أمر سريع",
+      "automatedCommands": "أوامر تلقائية",
+      "onConnect": "عند الاتصال",
+      "onDisconnect": "عند قطع الاتصال",
+      "onRecordingStart": "عند بدء التسجيل",
+      "onRecordingStop": "عند إيقاف التسجيل",
+      "optionalCommand": "أمر اختياري...",
+      "classCommands": "أوامر خاصة بالفئات",
+      "classCommandsDescription": "إرسال أمر عند بدء تسجيل فئة معينة.",
+      "selectClass": "اختر فئة",
+      "addClassCommand": "إضافة أمر فئة"
+    },
+    "ui": {
+      "showVisualization": "عرض لوحة التصور",
+      "visualizationHint": "عطل التصور لأداء أفضل على الأجهزة الضعيفة."
+    },
     "import": "استيراد",
     "export": "تصدير",
     "reset": "إعادة تعيين",
     "resetConfirm": "إعادة تعيين جميع الإعدادات إلى الافتراضية؟",
     "invalidFile": "ملف إعدادات غير صالح"
+  },
+  "serialTx": {
+    "title": "وحدة التحكم بالأوامر التسلسلية",
+    "disabled": "الإرسال التسلسلي معطل. فعله في الإعدادات > إرسال تسلسلي.",
+    "quickCommands": "أوامر سريعة",
+    "commandPlaceholder": "أدخل أمر...",
+    "connectFirst": "قم بتوصيل الجهاز أولاً",
+    "send": "إرسال",
+    "history": "سجل الأوامر",
+    "clear": "مسح",
+    "encoding": "الترميز",
+    "lineEnding": "نهاية السطر",
+    "none": "بدون"
   },
   "quickStart": {
     "title": "دليل البدء السريع",

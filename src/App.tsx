@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { Settings, Github, Moon, Sun, Globe, BarChart3 } from "lucide-react";
+import { useEffect } from "react";
+import { Settings, Github, Moon, Sun, Globe, BarChart3, Terminal } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { AppProvider, ThemeProvider, useTheme } from "./context";
+import { AppProvider, ThemeProvider, useTheme, useApp } from "./context";
 import { languages } from "./i18n";
 import {
   SerialConnection,
@@ -12,14 +12,18 @@ import {
   ExportPanel,
   LoggerView,
   DataVisualization,
+  SerialCommandPanel,
 } from "./components";
+import { useState } from "react";
 
 function AppContent() {
   const { t, i18n } = useTranslation();
   const { theme, toggleTheme } = useTheme();
+  const { config } = useApp();
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showVisualization, setShowVisualization] = useState(false);
+  const [showCommandPanel, setShowCommandPanel] = useState(false);
 
   // Set document direction based on language
   useEffect(() => {
@@ -32,6 +36,9 @@ function AppContent() {
     i18n.changeLanguage(code);
     setShowLangMenu(false);
   };
+
+  // Determine if visualization should be shown based on config
+  const canShowVisualization = config.ui.showVisualization;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans transition-colors">
@@ -147,28 +154,55 @@ function AppContent() {
               </div>
             </div>
 
+            {/* Serial Command Panel (TX) */}
+            {config.serialTx.enabled && (
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <button
+                  onClick={() => setShowCommandPanel(!showCommandPanel)}
+                  className="w-full p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-between items-center hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <Terminal className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    <h2 className="font-semibold text-gray-700 dark:text-gray-200">
+                      {t("serialTx.title")}
+                    </h2>
+                  </div>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {showCommandPanel ? "▲" : "▼"}
+                  </span>
+                </button>
+                {showCommandPanel && (
+                  <div className="p-6">
+                    <SerialCommandPanel />
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Data Visualization Toggle */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <button
-                onClick={() => setShowVisualization(!showVisualization)}
-                className="w-full p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-between items-center hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  <h2 className="font-semibold text-gray-700 dark:text-gray-200">
-                    {t("visualization.title")}
-                  </h2>
-                </div>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  {showVisualization ? "▲" : "▼"}
-                </span>
-              </button>
-              {showVisualization && (
-                <div className="p-6">
-                  <DataVisualization />
-                </div>
-              )}
-            </div>
+            {canShowVisualization && (
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <button
+                  onClick={() => setShowVisualization(!showVisualization)}
+                  className="w-full p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 flex justify-between items-center hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <h2 className="font-semibold text-gray-700 dark:text-gray-200">
+                      {t("visualization.title")}
+                    </h2>
+                  </div>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {showVisualization ? "▲" : "▼"}
+                  </span>
+                </button>
+                {showVisualization && (
+                  <div className="p-6">
+                    <DataVisualization />
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">

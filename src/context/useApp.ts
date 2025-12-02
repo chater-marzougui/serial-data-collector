@@ -5,6 +5,7 @@ import type {
   ConnectionStatus,
   CollectionStats,
   LogEntry,
+  SerialLogEntry,
 } from "../types";
 import { AppContext } from "./context";
 
@@ -45,6 +46,13 @@ export interface AppContextType {
   logs: LogEntry[];
   clearLogs: () => void;
   downloadLogs: () => void;
+
+  // Serial TX (bidirectional)
+  sendCommand: (command: string) => Promise<boolean>;
+  sendQuickCommand: (commandId: string) => Promise<boolean>;
+  commandHistory: string[];
+  clearCommandHistory: () => void;
+  txLog: SerialLogEntry[];
 }
 
 export function useApp(): AppContextType {

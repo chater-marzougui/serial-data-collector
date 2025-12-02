@@ -33,6 +33,23 @@ const DEFAULT_CONFIG: AppConfig = {
     persistToFile: false,
     maxEntries: 1000,
   },
+  serialTx: {
+    enabled: false,
+    encoding: "utf-8",
+    lineEnding: "\n",
+    quickCommands: [],
+    automatedCommands: {
+      onConnect: "",
+      onDisconnect: "",
+      onRecordingStart: "",
+      onRecordingStop: "",
+      delayBetweenCommands: 100,
+    },
+    classCommands: [],
+  },
+  ui: {
+    showVisualization: true,
+  },
 };
 
 const STORAGE_KEY = "serial-data-collector-config";

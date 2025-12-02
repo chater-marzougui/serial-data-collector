@@ -69,6 +69,8 @@
   "logs": {
     "title": "System Logs",
     "allLevels": "All levels",
+    "txOnly": "TX only",
+    "rxOnly": "RX only",
     "debug": "Debug",
     "info": "Info",
     "warn": "Warn",
@@ -83,11 +85,13 @@
     "title": "Configuration",
     "tabs": {
       "serial": "Serial",
+      "serialTx": "Serial TX",
       "parser": "Parser",
       "classes": "Classes",
       "rules": "Rules",
       "recording": "Recording",
-      "logging": "Logging"
+      "logging": "Logging",
+      "ui": "UI"
     },
     "serial": {
       "baudRate": "Baud Rate",
@@ -147,11 +151,50 @@
       "maxEntries": "Max Log Entries",
       "persistLogs": "Persist logs to browser storage"
     },
+    "serialTx": {
+      "enableTx": "Enable Serial TX (bidirectional communication)",
+      "encoding": "TX Encoding",
+      "rawHex": "Raw Hex Bytes",
+      "lineEnding": "Line Ending",
+      "noLineEnding": "None",
+      "commandDelay": "Delay between commands (ms)",
+      "quickCommands": "Quick Command Buttons",
+      "buttonLabel": "Button Label",
+      "command": "Command",
+      "addQuickCommand": "Add Quick Command",
+      "automatedCommands": "Automated Commands",
+      "onConnect": "On Device Connect",
+      "onDisconnect": "On Device Disconnect",
+      "onRecordingStart": "On Recording Start",
+      "onRecordingStop": "On Recording Stop",
+      "optionalCommand": "Optional command...",
+      "classCommands": "Class-Specific Commands",
+      "classCommandsDescription": "Send a command when starting to record a specific class.",
+      "selectClass": "Select Class",
+      "addClassCommand": "Add Class Command"
+    },
+    "ui": {
+      "showVisualization": "Show Data Visualization Panel",
+      "visualizationHint": "Disable visualization for better performance on low-end PCs."
+    },
     "import": "Import",
     "export": "Export",
     "reset": "Reset",
     "resetConfirm": "Reset all settings to defaults?",
     "invalidFile": "Invalid configuration file"
+  },
+  "serialTx": {
+    "title": "Serial Command Console",
+    "disabled": "Serial TX is disabled. Enable it in Settings > Serial TX.",
+    "quickCommands": "Quick Commands",
+    "commandPlaceholder": "Enter command...",
+    "connectFirst": "Connect device first",
+    "send": "Send",
+    "history": "Command History",
+    "clear": "Clear",
+    "encoding": "Encoding",
+    "lineEnding": "Line Ending",
+    "none": "None"
   },
   "quickStart": {
     "title": "Quick Start Guide",

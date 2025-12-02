@@ -257,12 +257,16 @@ class SerialManager {
       const writer = this.port.writable.getWriter();
       await writer.write(encoder.encode(data));
       writer.releaseLock();
-      logger.debug("Data written to serial port", { data });
+      logger.debug("Data written to serial port", { data }, "TX");
       return true;
     } catch (error) {
       logger.error("Error writing to serial port", error);
       return false;
     }
+  }
+
+  getWritable(): WritableStream<Uint8Array> | null {
+    return this.port?.writable || null;
   }
 
   isConnected(): boolean {

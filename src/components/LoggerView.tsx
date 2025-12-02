@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Trash2, Download, Filter } from "lucide-react";
+import { Trash2, Download, Filter, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useApp } from "../context";
-import type { LogLevel } from "../types";
+import type { LogLevel, SerialDirection } from "../types";
 
 const LEVEL_COLORS: Record<LogLevel, string> = {
   debug: "text-gray-500 dark:text-gray-400",
@@ -11,16 +11,25 @@ const LEVEL_COLORS: Record<LogLevel, string> = {
   error: "text-red-600 dark:text-red-400",
 };
 
+const DIRECTION_COLORS: Record<SerialDirection, string> = {
+  TX: "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20",
+  RX: "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20",
+};
+
+type FilterType = LogLevel | "all" | "TX" | "RX";
+
 export function LoggerView() {
   const { t } = useTranslation();
   const { logs, clearLogs, downloadLogs } = useApp();
-  const [filterLevel, setFilterLevel] = useState<LogLevel | "all">("all");
+  const [filterLevel, setFilterLevel] = useState<FilterType>("all");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const filteredLogs =
-    filterLevel === "all"
-      ? logs
-      : logs.filter((log) => log.level === filterLevel);
+  const filteredLogs = logs.filter((log) => {
+    if (filterLevel === "all") return true;
+    if (filterLevel === "TX") return log.direction === "TX";
+    if (filterLevel === "RX") return log.direction === "RX";
+    return log.level === filterLevel;
+  });
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -36,10 +45,12 @@ export function LoggerView() {
           <Filter className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           <select
             value={filterLevel}
-            onChange={(e) => setFilterLevel(e.target.value as LogLevel | "all")}
+            onChange={(e) => setFilterLevel(e.target.value as FilterType)}
             className="bg-white dark:bg-gray-800 rounded-md px-2 py-1 border border-gray-300 dark:border-gray-600 text-sm text-gray-700 dark:text-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="all">{t("logs.allLevels")}</option>
+            <option value="TX">{t("logs.txOnly")}</option>
+            <option value="RX">{t("logs.rxOnly")}</option>
             <option value="debug">{t("logs.debug")}</option>
             <option value="info">{t("logs.info")}</option>
             <option value="warn">{t("logs.warn")}</option>
@@ -82,15 +93,29 @@ export function LoggerView() {
           filteredLogs.map((entry, index) => (
             <div
               key={index}
-              className="flex gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 p-0.5 rounded"
+              className={`flex gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 p-0.5 rounded ${
+                entry.direction ? "border-s-2 ps-2 " + (entry.direction === "TX" ? "border-green-500" : "border-purple-500") : ""
+              }`}
             >
               <span className="text-gray-400 dark:text-gray-500 shrink-0">
                 {new Date(entry.timestamp).toLocaleTimeString()}
               </span>
+              {entry.direction && (
+                <span
+                  className={`${DIRECTION_COLORS[entry.direction]} shrink-0 font-bold px-1 rounded text-[10px] flex items-center gap-0.5`}
+                >
+                  {entry.direction === "TX" ? (
+                    <ArrowUpRight className="w-3 h-3" />
+                  ) : (
+                    <ArrowDownLeft className="w-3 h-3" />
+                  )}
+                  {entry.direction}
+                </span>
+              )}
               <span
                 className={`${
                   LEVEL_COLORS[entry.level]
-                } shrink-0 font-bold w-16 uppercase text-[10px] pt-0.5`}
+                } shrink-0 font-bold w-12 uppercase text-[10px] pt-0.5`}
               >
                 {entry.level}
               </span>

@@ -69,6 +69,8 @@
   "logs": {
     "title": "Journaux Système",
     "allLevels": "Tous les niveaux",
+    "txOnly": "TX uniquement",
+    "rxOnly": "RX uniquement",
     "debug": "Débogage",
     "info": "Info",
     "warn": "Avertissement",
@@ -83,11 +85,13 @@
     "title": "Configuration",
     "tabs": {
       "serial": "Série",
+      "serialTx": "Série TX",
       "parser": "Analyseur",
       "classes": "Classes",
       "rules": "Règles",
       "recording": "Enregistrement",
-      "logging": "Journalisation"
+      "logging": "Journalisation",
+      "ui": "Interface"
     },
     "serial": {
       "baudRate": "Débit en Bauds",
@@ -147,11 +151,50 @@
       "maxEntries": "Nombre Maximum d'Entrées",
       "persistLogs": "Persister les journaux dans le stockage du navigateur"
     },
+    "serialTx": {
+      "enableTx": "Activer Série TX (communication bidirectionnelle)",
+      "encoding": "Encodage TX",
+      "rawHex": "Octets Hex Bruts",
+      "lineEnding": "Fin de Ligne",
+      "noLineEnding": "Aucun",
+      "commandDelay": "Délai entre commandes (ms)",
+      "quickCommands": "Boutons de Commandes Rapides",
+      "buttonLabel": "Libellé du Bouton",
+      "command": "Commande",
+      "addQuickCommand": "Ajouter Commande Rapide",
+      "automatedCommands": "Commandes Automatisées",
+      "onConnect": "À la Connexion",
+      "onDisconnect": "À la Déconnexion",
+      "onRecordingStart": "Au Démarrage de l'Enregistrement",
+      "onRecordingStop": "À l'Arrêt de l'Enregistrement",
+      "optionalCommand": "Commande optionnelle...",
+      "classCommands": "Commandes Spécifiques aux Classes",
+      "classCommandsDescription": "Envoyer une commande lors du démarrage de l'enregistrement d'une classe spécifique.",
+      "selectClass": "Sélectionner une Classe",
+      "addClassCommand": "Ajouter Commande de Classe"
+    },
+    "ui": {
+      "showVisualization": "Afficher le Panneau de Visualisation",
+      "visualizationHint": "Désactivez la visualisation pour de meilleures performances sur les PC peu puissants."
+    },
     "import": "Importer",
     "export": "Exporter",
     "reset": "Réinitialiser",
     "resetConfirm": "Réinitialiser tous les paramètres par défaut ?",
     "invalidFile": "Fichier de configuration invalide"
+  },
+  "serialTx": {
+    "title": "Console de Commandes Série",
+    "disabled": "Série TX désactivé. Activez-le dans Paramètres > Série TX.",
+    "quickCommands": "Commandes Rapides",
+    "commandPlaceholder": "Entrez une commande...",
+    "connectFirst": "Connectez d'abord l'appareil",
+    "send": "Envoyer",
+    "history": "Historique des Commandes",
+    "clear": "Effacer",
+    "encoding": "Encodage",
+    "lineEnding": "Fin de Ligne",
+    "none": "Aucun"
   },
   "quickStart": {
     "title": "Guide de Démarrage Rapide",

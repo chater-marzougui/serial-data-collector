@@ -5,6 +5,46 @@ export interface SerialConfig {
   encoding: string;
 }
 
+// Serial TX/RX types
+export type SerialDirection = 'TX' | 'RX';
+
+export interface SerialLogEntry {
+  timestamp: number;
+  direction: SerialDirection;
+  data: string;
+  encoding?: string;
+}
+
+export interface QuickCommand {
+  id: string;
+  label: string;
+  command: string;
+  enabled: boolean;
+}
+
+export interface AutomatedCommandConfig {
+  onConnect: string;
+  onDisconnect: string;
+  onRecordingStart: string;
+  onRecordingStop: string;
+  delayBetweenCommands: number;
+}
+
+export interface ClassCommandConfig {
+  classId: string;
+  command: string;
+  enabled: boolean;
+}
+
+export interface SerialTxConfig {
+  enabled: boolean;
+  encoding: 'utf-8' | 'ascii' | 'raw';
+  lineEnding: '' | '\n' | '\r' | '\r\n';
+  quickCommands: QuickCommand[];
+  automatedCommands: AutomatedCommandConfig;
+  classCommands: ClassCommandConfig[];
+}
+
 export interface FieldConfig {
   name: string;
   type: 'string' | 'number' | 'boolean';
@@ -55,6 +95,10 @@ export interface AppConfig {
     persistToFile: boolean;
     maxEntries: number;
   };
+  serialTx: SerialTxConfig;
+  ui: {
+    showVisualization: boolean;
+  };
 }
 
 // Data types
@@ -78,6 +122,7 @@ export interface LogEntry {
   level: LogLevel;
   message: string;
   data?: unknown;
+  direction?: SerialDirection;
 }
 
 // Serial types
