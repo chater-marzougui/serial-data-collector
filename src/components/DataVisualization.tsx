@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -53,7 +53,10 @@ interface LabelInterval {
  * @param maxPoints - Maximum number of points to display (default: 1000)
  * @returns The step size to use for sampling (1 means show all points)
  */
-function calculateSmartStep(totalSamples: number, maxPoints: number = 1000): number {
+function calculateSmartStep(
+  totalSamples: number,
+  maxPoints: number = 100
+): number {
   if (totalSamples <= maxPoints) return 1;
   return Math.ceil(totalSamples / maxPoints);
 }
@@ -77,7 +80,10 @@ function sampleData(
     sampled.push({ ...data[i], originalIndex: i });
   }
   // Always include the last point
-  if (data.length > 0 && sampled[sampled.length - 1]?.originalIndex !== data.length - 1) {
+  if (
+    data.length > 0 &&
+    sampled[sampled.length - 1]?.originalIndex !== data.length - 1
+  ) {
     sampled.push({ ...data[data.length - 1], originalIndex: data.length - 1 });
   }
   return sampled;
@@ -133,13 +139,16 @@ export function DataVisualization() {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const { recordedSamples, config } = useApp();
+  const ModularNumber = 500;
 
   const [showSettings, setShowSettings] = useState(false);
   const [manualStep, setManualStep] = useState<number | null>(null);
   const [showClassLabels, setShowClassLabels] = useState(true);
+  const [minSteps, setMinSteps] = useState(Math.floor(recordedSamples.length / ModularNumber));
   const [enabledColumns, setEnabledColumns] = useState<Set<string>>(() => {
     return new Set(config.fields);
   });
+
 
   // Get numeric fields from data
   const numericFields = useMemo(() => {
@@ -166,6 +175,13 @@ export function DataVisualization() {
   const labelIntervals = useMemo(() => {
     return extractLabelIntervals(recordedSamples, config.classes);
   }, [recordedSamples, config.classes]);
+
+  useEffect(() => {
+    if (effectiveStep < recordedSamples.length / ModularNumber) {
+      setManualStep(Math.floor(recordedSamples.length / ModularNumber));
+      setMinSteps(Math.floor(recordedSamples.length / ModularNumber));
+    }
+  }, [effectiveStep, recordedSamples.length]);
 
   // Prepare chart data
   const chartData = useMemo(() => {
@@ -228,7 +244,7 @@ export function DataVisualization() {
           </label>
           <input
             type="number"
-            min="1"
+            min={minSteps}
             max={Math.max(1, recordedSamples.length)}
             value={effectiveStep}
             onChange={(e) => {
@@ -298,7 +314,9 @@ export function DataVisualization() {
                 )}
                 <span
                   className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: LINE_COLORS[index % LINE_COLORS.length] }}
+                  style={{
+                    backgroundColor: LINE_COLORS[index % LINE_COLORS.length],
+                  }}
                 />
                 {field}
               </button>
@@ -349,14 +367,17 @@ export function DataVisualization() {
                 );
 
                 if (startSampledIdx === -1) return null;
-                const endIdx = endSampledIdx === -1 ? chartData.length - 1 : endSampledIdx;
+                const endIdx =
+                  endSampledIdx === -1 ? chartData.length - 1 : endSampledIdx;
 
                 return (
                   <ReferenceArea
                     key={`${interval.label}-${idx}`}
                     x1={chartData[startSampledIdx]?.time}
                     x2={chartData[endIdx]?.time}
-                    fill={CLASS_COLORS[interval.color] || "rgba(156, 163, 175, 0.2)"}
+                    fill={
+                      CLASS_COLORS[interval.color] || "rgba(156, 163, 175, 0.2)"
+                    }
                     fillOpacity={0.5}
                     label={{
                       value: interval.label,
@@ -380,6 +401,9 @@ export function DataVisualization() {
                   strokeWidth={2}
                   dot={sampledData.length < 50}
                   activeDot={{ r: 4 }}
+                  isAnimationActive={false}
+                  animationDuration={500}
+                  animationEasing="ease-in-out"
                 />
               ))}
           </LineChart>
