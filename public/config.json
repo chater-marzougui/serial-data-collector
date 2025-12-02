@@ -1,0 +1,33 @@
+{
+  "serial": {
+    "baudRate": 115200,
+    "delimiter": "\n",
+    "encoding": "utf-8"
+  },
+  "parser": {
+    "type": "split",
+    "splitDelimiter": ",",
+    "skipLines": []
+  },
+  "fields": ["timestamp", "value1", "value2", "value3"],
+  "classes": [
+    { "id": "class1", "name": "Class 1", "color": "bg-blue-500" },
+    { "id": "class2", "name": "Class 2", "color": "bg-green-500" },
+    { "id": "class3", "name": "Class 3", "color": "bg-purple-500" }
+  ],
+  "rules": [],
+  "export": {
+    "template": "${timestamp},${value1},${value2},${value3},${label}",
+    "filename": "data_export_${timestamp}",
+    "includeHeader": true
+  },
+  "recording": {
+    "autoStopSeconds": 10,
+    "enableLabeling": true
+  },
+  "logging": {
+    "level": "info",
+    "persistToFile": false,
+    "maxEntries": 1000
+  }
+}
