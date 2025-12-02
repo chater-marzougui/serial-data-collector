@@ -20,7 +20,7 @@ Built with ❤️ by [Chater Marzougui](https://github.com/chater-marzougui).
 <br />
 <div align="center">
   <a href="https://github.com/chater-marzougui/serial-data-collector">
-     <img src="public/screenshots/main-light.png" alt="Serial Data Collector Screenshot" width="800">
+     <img src="https://raw.githubusercontent.com/chater-marzougui/serial-data-collector/main/public/screenshots/main-light.png" alt="Serial Data Collector Screenshot" width="800">
   </a>
   <h3>Serial Data Collector</h3>
   <p align="center">
@@ -49,7 +49,7 @@ Built with ❤️ by [Chater Marzougui](https://github.com/chater-marzougui).
     <li><a href="#-project-structure">Project Structure</a></li>
     <li><a href="#-contributing">Contributing</a></li>
     <li><a href="#-license">License</a></li>
-     <li><a href="#-contact">Contact</a></li>
+    <li><a href="#-contact">Contact</a></li>
   </ol>
 </details>
 
@@ -157,17 +157,17 @@ Define automatic triggers:
 
 ### Light Mode
 <div align="center">
-  <img src="public/screenshots/main-light.png" alt="Light Mode" width="800">
+  <img src="https://raw.githubusercontent.com/chater-marzougui/serial-data-collector/main/public/screenshots/main-light.png" alt="Light Mode" width="800">
 </div>
 
 ### Dark Mode
 <div align="center">
-  <img src="public/screenshots/main-dark.png" alt="Dark Mode" width="800">
+  <img src="https://raw.githubusercontent.com/chater-marzougui/serial-data-collector/main/public/screenshots/main-dark.png" alt="Dark Mode" width="800">
 </div>
 
 ### Configuration Panel
 <div align="center">
-  <img src="public/screenshots/settings-dark.png" alt="Settings Panel" width="800">
+  <img src="https://raw.githubusercontent.com/chater-marzougui/serial-data-collector/main/public/screenshots/settings-dark.png" alt="Settings Panel" width="800">
 </div>
 
 <div align="right">
@@ -438,6 +438,6 @@ Made with ❤️ for the maker community
 [issues-shield]: https://img.shields.io/github/issues/chater-marzougui/serial-data-collector.svg?style=for-the-badge
 [issues-url]: https://github.com/chater-marzougui/serial-data-collector/issues
 [license-shield]: https://img.shields.io/github/license/chater-marzougui/serial-data-collector.svg?style=for-the-badge
-[license-url]: https://github.com/chater-marzougui/serial-data-collector/blob/master/LICENSE
+[license-url]: https://github.com/chater-marzougui/serial-data-collector/blob/main/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/chater-marzougui-342125299/
