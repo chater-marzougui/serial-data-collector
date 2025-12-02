@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   LineChart,
   Line,
@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   ReferenceArea,
 } from "recharts";
-import { Eye, EyeOff, Settings2 } from "lucide-react";
+import { Eye, EyeOff, Settings2, AlertTriangle } from "lucide-react";
 import { useApp, useTheme } from "../context";
 import { useTranslation } from "react-i18next";
 import type { RecordedSample } from "../types";
@@ -135,6 +135,78 @@ function extractLabelIntervals(
   return intervals;
 }
 
+/**
+ * Analyzes data columns to detect scale outliers that may distort visualization
+ */
+function analyzeDataScale(
+  recordedSamples: RecordedSample[],
+  numericFields: string[],
+  enabledColumns: Set<string>
+) {
+  if (recordedSamples.length === 0) return [];
+
+  const warnings: {
+    field: string;
+    range: number;
+    min: number;
+    max: number;
+    ratio: number;
+  }[] = [];
+  const fieldStats: Record<
+    string,
+    { min: number; max: number; range: number }
+  > = {};
+
+  // Calculate min, max, and range for each enabled numeric field
+  numericFields.forEach((field) => {
+    if (!enabledColumns.has(field)) return;
+
+    let min = Infinity;
+    let max = -Infinity;
+
+    recordedSamples.forEach((sample) => {
+      const value = sample.fields[field];
+      if (typeof value === "number" && !isNaN(value)) {
+        min = Math.min(min, value);
+        max = Math.max(max, value);
+      }
+    });
+
+    fieldStats[field] = { min, max, range: max - min };
+  });
+
+  const fields = Object.keys(fieldStats);
+  if (fields.length < 2) return warnings;
+
+  // Find outlier fields that have significantly larger ranges
+  fields.forEach((field) => {
+    const currentRange = fieldStats[field].range;
+    const otherRanges = fields
+      .filter((f) => f !== field)
+      .map((f) => fieldStats[f].range);
+
+    if (otherRanges.length === 0) return;
+
+    const maxOtherRange = Math.max(...otherRanges);
+    const avgOtherRange =
+      otherRanges.reduce((a, b) => a + b, 0) / otherRanges.length;
+
+    // If this field's range is more than 10x the average of others
+    // or more than 5x the max of others, it's likely distorting the view
+    if (currentRange > avgOtherRange * 10 || currentRange > maxOtherRange * 5) {
+      warnings.push({
+        field,
+        range: currentRange,
+        min: fieldStats[field].min,
+        max: fieldStats[field].max,
+        ratio: Math.round(currentRange / avgOtherRange),
+      });
+    }
+  });
+
+  return warnings;
+}
+
 export function DataVisualization() {
   const { t } = useTranslation();
   const { theme } = useTheme();
@@ -144,11 +216,12 @@ export function DataVisualization() {
   const [showSettings, setShowSettings] = useState(false);
   const [manualStep, setManualStep] = useState<number | null>(null);
   const [showClassLabels, setShowClassLabels] = useState(true);
-  const [minSteps, setMinSteps] = useState(Math.floor(recordedSamples.length / ModularNumber));
+  const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(
+    new Set()
+  );
   const [enabledColumns, setEnabledColumns] = useState<Set<string>>(() => {
     return new Set(config.fields);
   });
-
 
   // Get numeric fields from data
   const numericFields = useMemo(() => {
@@ -164,7 +237,15 @@ export function DataVisualization() {
     return calculateSmartStep(recordedSamples.length);
   }, [recordedSamples.length]);
 
-  const effectiveStep = manualStep ?? smartStep;
+  // calculate min step
+  const minStep = useMemo(() => {
+    return Math.max(1, Math.floor(recordedSamples.length / ModularNumber));
+  }, [recordedSamples.length]);
+
+  const effectiveStep = useMemo(() => {
+    const step = manualStep ?? smartStep;
+    return Math.max(step, minStep);
+  }, [manualStep, smartStep, minStep]);
 
   // Sample the data
   const sampledData = useMemo(() => {
@@ -176,12 +257,15 @@ export function DataVisualization() {
     return extractLabelIntervals(recordedSamples, config.classes);
   }, [recordedSamples, config.classes]);
 
-  useEffect(() => {
-    if (effectiveStep < recordedSamples.length / ModularNumber) {
-      setManualStep(Math.floor(recordedSamples.length / ModularNumber));
-      setMinSteps(Math.floor(recordedSamples.length / ModularNumber));
-    }
-  }, [effectiveStep, recordedSamples.length]);
+  // Analyze data scale for outlier detection
+  const scaleWarnings = useMemo(() => {
+    return analyzeDataScale(recordedSamples, numericFields, enabledColumns);
+  }, [recordedSamples, numericFields, enabledColumns]);
+
+  // Filter out dismissed warnings
+  const activeWarnings = useMemo(() => {
+    return scaleWarnings.filter((w) => !dismissedWarnings.has(w.field));
+  }, [scaleWarnings, dismissedWarnings]);
 
   // Prepare chart data
   const chartData = useMemo(() => {
@@ -211,6 +295,22 @@ export function DataVisualization() {
       return next;
     });
   }, []);
+
+  const dismissWarning = useCallback((field: string) => {
+    setDismissedWarnings((prev) => new Set([...prev, field]));
+  }, []);
+
+  const applyWarningFix = useCallback(
+    (field: string) => {
+      setEnabledColumns((prev) => {
+        const next = new Set(prev);
+        next.delete(field);
+        return next;
+      });
+      dismissWarning(field);
+    },
+    [dismissWarning]
+  );
 
   const isDark = theme === "dark";
 
@@ -244,7 +344,7 @@ export function DataVisualization() {
           </label>
           <input
             type="number"
-            min={minSteps}
+            min={minStep}
             max={Math.max(1, recordedSamples.length)}
             value={effectiveStep}
             onChange={(e) => {
@@ -322,6 +422,46 @@ export function DataVisualization() {
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Scale warnings */}
+      {activeWarnings.length > 0 && (
+        <div className="space-y-2">
+          {activeWarnings.map((warning) => (
+            <div
+              key={warning.field}
+              className="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg"
+            >
+              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-semibold text-amber-900 dark:text-amber-100 mb-1">
+                  Scale Outlier Detected: {warning.field}
+                </h4>
+                <p className="text-sm text-amber-800 dark:text-amber-200 mb-2">
+                  This field has values ranging from {warning.min.toFixed(2)} to{" "}
+                  {warning.max.toFixed(2)}
+                  (range: {warning.range.toFixed(2)}), which is about{" "}
+                  {warning.ratio}x larger than other fields. This may compress
+                  other data into flat lines.
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => applyWarningFix(warning.field)}
+                    className="px-3 py-1 text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white rounded-md transition-colors"
+                  >
+                    Hide {warning.field}
+                  </button>
+                  <button
+                    onClick={() => dismissWarning(warning.field)}
+                    className="px-3 py-1 text-xs font-medium bg-amber-100 hover:bg-amber-200 dark:bg-amber-900/40 dark:hover:bg-amber-900/60 text-amber-900 dark:text-amber-100 rounded-md transition-colors"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

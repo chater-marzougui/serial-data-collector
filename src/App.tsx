@@ -1,5 +1,13 @@
 import { useEffect } from "react";
-import { Settings, Github, Moon, Sun, Globe, BarChart3, Terminal } from "lucide-react";
+import {
+  Settings,
+  Github,
+  Moon,
+  Sun,
+  Globe,
+  BarChart3,
+  Terminal,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { AppProvider, ThemeProvider, useTheme, useApp } from "./context";
 import { languages } from "./i18n";
@@ -291,13 +299,41 @@ function AppContent() {
             </div>
           </div>
         </div>
-
-        {/* Footer */}
-        <div className="mt-12 border-t border-gray-200 dark:border-gray-700 pt-8 text-center text-gray-500 dark:text-gray-400 text-sm">
-          <p>{t("footer.copyright", { year: new Date().getFullYear() })}</p>
-          <p className="mt-1">{t("footer.author")}</p>
-        </div>
       </div>
+
+      {/* Footer */}
+      <footer className="mt-3 border-t border-gray-200 dark:border-gray-800 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
+          <div className="flex justify-center gap-6 text-sm">
+            <a
+              href="https://github.com/chater-marzougui/serial-data-collector"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+            >
+              GitHub
+            </a>
+            <a
+              href="https://github.com/chater-marzougui"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+            >
+              Author
+            </a>
+          </div>
+
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Serial Data Collector — Open-source, device-agnostic serial
+            acquisition platform.
+          </p>
+
+          <p className="text-xs text-gray-400 dark:text-gray-600">
+            © {new Date().getFullYear()} — Built with 🪛 and too much caffeine
+            by Chater Marzougui
+          </p>
+        </div>
+      </footer>
 
       {/* Configuration Modal */}
       <ConfigPanel
