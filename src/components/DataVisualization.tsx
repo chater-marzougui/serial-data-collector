@@ -46,11 +46,25 @@ interface LabelInterval {
   color: string;
 }
 
+/**
+ * Calculates the optimal sampling step size to limit the number of displayed points.
+ * This prevents performance issues when visualizing large datasets.
+ * @param totalSamples - Total number of samples in the dataset
+ * @param maxPoints - Maximum number of points to display (default: 1000)
+ * @returns The step size to use for sampling (1 means show all points)
+ */
 function calculateSmartStep(totalSamples: number, maxPoints: number = 1000): number {
   if (totalSamples <= maxPoints) return 1;
   return Math.ceil(totalSamples / maxPoints);
 }
 
+/**
+ * Samples data by selecting every nth element based on the step size.
+ * Always includes the first and last points for complete visualization.
+ * @param data - Array of recorded samples to sample from
+ * @param step - Number of samples to skip between selected points
+ * @returns Sampled array with original indices preserved
+ */
 function sampleData(
   data: RecordedSample[],
   step: number
@@ -69,6 +83,13 @@ function sampleData(
   return sampled;
 }
 
+/**
+ * Extracts continuous intervals of labeled data for visualization overlays.
+ * Groups consecutive samples with the same label into intervals.
+ * @param data - Array of recorded samples
+ * @param classes - Array of class configurations with id and color
+ * @returns Array of label intervals with start/end indices and colors
+ */
 function extractLabelIntervals(
   data: RecordedSample[],
   classes: { id: string; color: string }[]

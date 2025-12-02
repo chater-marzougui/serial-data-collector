@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Download, Trash2, Eye, FileText } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useApp } from "../context";
+
+// Reserved field names that are always available
+const RESERVED_FIELDS = ["timestamp", "recordedAt", "label", "raw"] as const;
 
 export function ExportPanel() {
   const { t } = useTranslation();
@@ -17,6 +20,12 @@ export function ExportPanel() {
 
   const preview = previewExport();
   const validation = validateTemplate(config.export.template, config.fields, t);
+
+  // Combine reserved fields with user-defined fields, avoiding duplicates
+  const availableFields = useMemo(() => {
+    const userFields = config.fields.filter(f => !RESERVED_FIELDS.includes(f as typeof RESERVED_FIELDS[number]));
+    return [...RESERVED_FIELDS, ...userFields];
+  }, [config.fields]);
 
   return (
     <div className="space-y-4">
@@ -59,7 +68,7 @@ export function ExportPanel() {
         {/* Available fields */}
         <div className="mt-2 flex flex-wrap gap-1">
           <span className="text-xs text-gray-500 dark:text-gray-400">{t("export.available")}:</span>
-          {["timestamp", "recordedAt", "label", "raw", ...config.fields.filter(f => !["timestamp", "recordedAt", "label", "raw"].includes(f))].map(
+          {availableFields.map(
             (field) => (
               <button
                 key={field}
