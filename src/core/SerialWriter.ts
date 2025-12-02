@@ -1,4 +1,4 @@
-import type { SerialTxConfig, SerialLogEntry } from "../types";
+import type { SerialTxConfig, SerialLogEntry, AutomatedCommandTrigger } from "../types";
 import { logger } from "./Logger";
 
 type TxLogCallback = (entry: SerialLogEntry) => void;
@@ -68,10 +68,19 @@ class SerialWriter {
       }
       case "raw": {
         // Parse hex string like "0A 0D FF" or "0A0DFF"
-        const hexParts = dataWithLineEnding.replace(/\s+/g, "").match(/.{1,2}/g) || [];
+        // Note: line ending is not appended for raw bytes mode
+        const hexString = data.replace(/\s+/g, "");
+        // Validate hex string
+        if (!/^[0-9a-fA-F]*$/.test(hexString)) {
+          throw new Error("Invalid hex string: only 0-9, a-f, A-F characters are allowed");
+        }
+        if (hexString.length % 2 !== 0) {
+          throw new Error("Invalid hex string: must have even number of characters");
+        }
+        const hexParts = hexString.match(/.{2}/g) || [];
         const bytes = new Uint8Array(hexParts.length);
         for (let i = 0; i < hexParts.length; i++) {
-          bytes[i] = parseInt(hexParts[i], 16) || 0;
+          bytes[i] = parseInt(hexParts[i], 16);
         }
         return bytes;
       }
@@ -172,9 +181,7 @@ class SerialWriter {
     return this.write(command.command);
   }
 
-  async sendAutomatedCommand(trigger: keyof SerialTxConfig["automatedCommands"]): Promise<boolean> {
-    if (trigger === "delayBetweenCommands") return false;
-    
+  async sendAutomatedCommand(trigger: AutomatedCommandTrigger): Promise<boolean> {
     const command = this.config.automatedCommands[trigger];
     if (!command || command.trim() === "") {
       return true; // No command configured, not an error

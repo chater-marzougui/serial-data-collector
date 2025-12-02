@@ -372,9 +372,8 @@ export function AppProvider({ children }: AppProviderProps) {
       return false;
     }
     const result = await serialWriterRef.current.write(command);
-    if (result) {
-      setCommandHistory(serialWriterRef.current.getCommandHistory());
-    }
+    // Always sync history state with the writer's internal history
+    setCommandHistory(serialWriterRef.current.getCommandHistory());
     return result;
   }, []);
 
@@ -384,9 +383,8 @@ export function AppProvider({ children }: AppProviderProps) {
       return false;
     }
     const result = await serialWriterRef.current.sendQuickCommand(commandId);
-    if (result) {
-      setCommandHistory(serialWriterRef.current.getCommandHistory());
-    }
+    // Always sync history state with the writer's internal history
+    setCommandHistory(serialWriterRef.current.getCommandHistory());
     return result;
   }, []);
 

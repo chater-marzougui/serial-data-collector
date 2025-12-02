@@ -30,6 +30,8 @@ export interface AutomatedCommandConfig {
   delayBetweenCommands: number;
 }
 
+export type AutomatedCommandTrigger = 'onConnect' | 'onDisconnect' | 'onRecordingStart' | 'onRecordingStop';
+
 export interface ClassCommandConfig {
   classId: string;
   command: string;
