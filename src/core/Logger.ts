@@ -1,9 +1,9 @@
-import type { LogLevel, LogEntry } from '../types';
+import type { LogLevel, LogEntry } from "../types";
 
 type LogCallback = (entry: LogEntry) => void;
 
 class Logger {
-  private level: LogLevel = 'info';
+  private level: LogLevel = "info";
   private entries: LogEntry[] = [];
   private maxEntries: number = 1000;
   private persistToFile: boolean = false;
@@ -32,7 +32,7 @@ class Logger {
   subscribe(callback: LogCallback): () => void {
     this.callbacks.push(callback);
     return () => {
-      this.callbacks = this.callbacks.filter(cb => cb !== callback);
+      this.callbacks = this.callbacks.filter((cb) => cb !== callback);
     };
   }
 
@@ -55,10 +55,10 @@ class Logger {
 
     // Console output with styling
     const styles: Record<LogLevel, string> = {
-      debug: 'color: gray',
-      info: 'color: blue',
-      warn: 'color: orange',
-      error: 'color: red; font-weight: bold',
+      debug: "color: gray",
+      info: "color: blue",
+      warn: "color: orange",
+      error: "color: red; font-weight: bold",
     };
 
     const prefix = `[${level.toUpperCase()}]`;
@@ -69,7 +69,7 @@ class Logger {
     }
 
     // Notify subscribers
-    this.callbacks.forEach(cb => cb(entry));
+    this.callbacks.forEach((cb) => cb(entry));
   }
 
   private trimEntries(): void {
@@ -79,19 +79,19 @@ class Logger {
   }
 
   debug(message: string, data?: unknown): void {
-    this.log('debug', message, data);
+    this.log("debug", message, data);
   }
 
   info(message: string, data?: unknown): void {
-    this.log('info', message, data);
+    this.log("info", message, data);
   }
 
   warn(message: string, data?: unknown): void {
-    this.log('warn', message, data);
+    this.log("warn", message, data);
   }
 
   error(message: string, data?: unknown): void {
-    this.log('error', message, data);
+    this.log("error", message, data);
   }
 
   getEntries(): LogEntry[] {
@@ -99,7 +99,7 @@ class Logger {
   }
 
   getEntriesByLevel(level: LogLevel): LogEntry[] {
-    return this.entries.filter(e => e.level === level);
+    return this.entries.filter((e) => e.level === level);
   }
 
   clear(): void {
@@ -108,16 +108,17 @@ class Logger {
 
   downloadLogs(): void {
     const logText = this.entries
-      .map(e => {
+      .map((e) => {
         const date = new Date(e.timestamp).toISOString();
-        const dataStr = e.data !== undefined ? ` | ${JSON.stringify(e.data)}` : '';
+        const dataStr =
+          e.data !== undefined ? ` | ${JSON.stringify(e.data)}` : "";
         return `[${date}] [${e.level.toUpperCase()}] ${e.message}${dataStr}`;
       })
-      .join('\n');
+      .join("\n");
 
-    const blob = new Blob([logText], { type: 'text/plain' });
+    const blob = new Blob([logText], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `serial-data-collector-logs-${Date.now()}.txt`;
     a.click();
@@ -125,15 +126,18 @@ class Logger {
   }
 
   getStorageKey(): string {
-    return 'serial-data-collector-logs';
+    return "serial-data-collector-logs";
   }
 
   saveToStorage(): void {
     if (this.persistToFile) {
       try {
-        localStorage.setItem(this.getStorageKey(), JSON.stringify(this.entries));
+        localStorage.setItem(
+          this.getStorageKey(),
+          JSON.stringify(this.entries)
+        );
       } catch (e) {
-        console.warn('Failed to persist logs to localStorage', e);
+        console.warn("Failed to persist logs to localStorage", e);
       }
     }
   }
@@ -145,7 +149,7 @@ class Logger {
         this.entries = JSON.parse(stored);
       }
     } catch (e) {
-      console.warn('Failed to load logs from localStorage', e);
+      console.warn("Failed to load logs from localStorage", e);
     }
   }
 }

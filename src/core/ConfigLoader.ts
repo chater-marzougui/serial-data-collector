@@ -1,27 +1,27 @@
-import type { AppConfig, ClassConfig } from '../types';
-import { logger } from './Logger';
+import type { AppConfig, ClassConfig } from "../types";
+import { logger } from "./Logger";
 
 const DEFAULT_CONFIG: AppConfig = {
   serial: {
     baudRate: 115200,
-    delimiter: '\n',
-    encoding: 'utf-8',
+    delimiter: "\n",
+    encoding: "utf-8",
   },
   parser: {
-    type: 'split',
-    splitDelimiter: ',',
+    type: "split",
+    splitDelimiter: ",",
     skipLines: [],
   },
-  fields: ['timestamp', 'value1', 'value2', 'value3'],
+  fields: ["timestamp", "value1", "value2", "value3"],
   classes: [
-    { id: 'class1', name: 'Class 1', color: 'bg-blue-500' },
-    { id: 'class2', name: 'Class 2', color: 'bg-green-500' },
-    { id: 'class3', name: 'Class 3', color: 'bg-purple-500' },
+    { id: "class1", name: "Class 1", color: "bg-blue-500" },
+    { id: "class2", name: "Class 2", color: "bg-green-500" },
+    { id: "class3", name: "Class 3", color: "bg-purple-500" },
   ],
   rules: [],
   export: {
-    template: '${timestamp},${value1},${value2},${value3},${label}',
-    filename: 'data_export_${timestamp}',
+    template: "${timestamp},${value1},${value2},${value3},${label}",
+    filename: "data_export_${timestamp}",
     includeHeader: true,
   },
   recording: {
@@ -29,13 +29,13 @@ const DEFAULT_CONFIG: AppConfig = {
     enableLabeling: true,
   },
   logging: {
-    level: 'info',
+    level: "info",
     persistToFile: false,
     maxEntries: 1000,
   },
 };
 
-const STORAGE_KEY = 'serial-data-collector-config';
+const STORAGE_KEY = "serial-data-collector-config";
 
 class ConfigLoader {
   private config: AppConfig = { ...DEFAULT_CONFIG };
@@ -49,10 +49,10 @@ class ConfigLoader {
       }
       const json = await response.json();
       this.config = this.mergeConfig(DEFAULT_CONFIG, json);
-      logger.info('Configuration loaded successfully', this.config);
+      logger.info("Configuration loaded successfully", this.config);
       return this.config;
     } catch (error) {
-      logger.warn('Failed to load config file, using defaults', error);
+      logger.warn("Failed to load config file, using defaults", error);
       return this.config;
     }
   }
@@ -63,10 +63,10 @@ class ConfigLoader {
       if (stored) {
         const parsed = JSON.parse(stored);
         this.config = this.mergeConfig(DEFAULT_CONFIG, parsed);
-        logger.info('Configuration loaded from storage', this.config);
+        logger.info("Configuration loaded from storage", this.config);
       }
     } catch (error) {
-      logger.warn('Failed to load config from storage', error);
+      logger.warn("Failed to load config from storage", error);
     }
     return this.config;
   }
@@ -74,9 +74,9 @@ class ConfigLoader {
   saveToStorage(): void {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.config));
-      logger.info('Configuration saved to storage');
+      logger.info("Configuration saved to storage");
     } catch (error) {
-      logger.error('Failed to save config to storage', error);
+      logger.error("Failed to save config to storage", error);
     }
   }
 
@@ -87,16 +87,16 @@ class ConfigLoader {
   updateConfig(partial: Partial<AppConfig>): AppConfig {
     this.config = this.mergeConfig(this.config, partial);
     this.saveToStorage();
-    logger.info('Configuration updated', partial);
+    logger.info("Configuration updated", partial);
     return this.config;
   }
 
-  updateSerial(serial: Partial<AppConfig['serial']>): void {
+  updateSerial(serial: Partial<AppConfig["serial"]>): void {
     this.config.serial = { ...this.config.serial, ...serial };
     this.saveToStorage();
   }
 
-  updateParser(parser: Partial<AppConfig['parser']>): void {
+  updateParser(parser: Partial<AppConfig["parser"]>): void {
     this.config.parser = { ...this.config.parser, ...parser };
     this.saveToStorage();
   }
@@ -111,12 +111,12 @@ class ConfigLoader {
     this.saveToStorage();
   }
 
-  updateExport(exportConfig: Partial<AppConfig['export']>): void {
+  updateExport(exportConfig: Partial<AppConfig["export"]>): void {
     this.config.export = { ...this.config.export, ...exportConfig };
     this.saveToStorage();
   }
 
-  updateLogging(logging: Partial<AppConfig['logging']>): void {
+  updateLogging(logging: Partial<AppConfig["logging"]>): void {
     this.config.logging = { ...this.config.logging, ...logging };
     if (logging.level) {
       logger.setLevel(logging.level);
@@ -133,7 +133,7 @@ class ConfigLoader {
   resetToDefaults(): AppConfig {
     this.config = { ...DEFAULT_CONFIG };
     localStorage.removeItem(STORAGE_KEY);
-    logger.info('Configuration reset to defaults');
+    logger.info("Configuration reset to defaults");
     return this.config;
   }
 
@@ -146,11 +146,11 @@ class ConfigLoader {
       const parsed = JSON.parse(json);
       this.config = this.mergeConfig(DEFAULT_CONFIG, parsed);
       this.saveToStorage();
-      logger.info('Configuration imported successfully');
+      logger.info("Configuration imported successfully");
       return this.config;
     } catch (error) {
-      logger.error('Failed to import configuration', error);
-      throw new Error('Invalid configuration JSON');
+      logger.error("Failed to import configuration", error);
+      throw new Error("Invalid configuration JSON");
     }
   }
 
@@ -161,9 +161,9 @@ class ConfigLoader {
         const value = override[key];
         if (
           value !== null &&
-          typeof value === 'object' &&
+          typeof value === "object" &&
           !Array.isArray(value) &&
-          typeof result[key] === 'object' &&
+          typeof result[key] === "object" &&
           !Array.isArray(result[key])
         ) {
           result[key] = this.mergeConfig(

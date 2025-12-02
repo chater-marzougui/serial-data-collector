@@ -4,14 +4,14 @@ import {
   useCallback,
   useRef,
   type ReactNode,
-} from 'react';
+} from "react";
 import type {
   AppConfig,
   RecordedSample,
   ConnectionStatus,
   CollectionStats,
   LogEntry,
-} from '../types';
+} from "../types";
 import {
   configLoader,
   logger,
@@ -20,12 +20,12 @@ import {
   rulesEngine,
   createFormatter,
   downloadCSV,
-} from '../core';
-import type SerialManager from '../core/SerialManager';
-import type DataParser from '../core/DataParser';
-import type TemplateFormatter from '../core/TemplateFormatter';
-import type { AppContextType } from './useApp';
-import { AppContext } from './context';
+} from "../core";
+import type SerialManager from "../core/SerialManager";
+import type DataParser from "../core/DataParser";
+import type TemplateFormatter from "../core/TemplateFormatter";
+import type { AppContextType } from "./useApp";
+import { AppContext } from "./context";
 
 interface AppProviderProps {
   children: ReactNode;
@@ -33,8 +33,11 @@ interface AppProviderProps {
 
 export function AppProvider({ children }: AppProviderProps) {
   // State
-  const [config, setConfig] = useState<AppConfig>(() => configLoader.loadFromStorage());
-  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
+  const [config, setConfig] = useState<AppConfig>(() =>
+    configLoader.loadFromStorage()
+  );
+  const [connectionStatus, setConnectionStatus] =
+    useState<ConnectionStatus>("disconnected");
   const [liveData, setLiveData] = useState<string[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [currentClass, setCurrentClass] = useState<string | null>(null);
@@ -71,7 +74,7 @@ export function AppProvider({ children }: AppProviderProps) {
       recordingTimerRef.current = null;
     }
 
-    logger.info('Recording stopped');
+    logger.info("Recording stopped");
   }, []);
 
   // Handle incoming data
@@ -86,13 +89,16 @@ export function AppProvider({ children }: AppProviderProps) {
     // Apply rules
     const ruleResult = rulesEngine.evaluate(parsed);
 
-    if (ruleResult.action === 'ignore') {
-      logger.debug('Data ignored by rule', { ruleId: ruleResult.ruleId });
+    if (ruleResult.action === "ignore") {
+      logger.debug("Data ignored by rule", { ruleId: ruleResult.ruleId });
       return;
     }
 
-    if (ruleResult.action === 'log') {
-      logger.info('Rule triggered log', { data: parsed, ruleId: ruleResult.ruleId });
+    if (ruleResult.action === "log") {
+      logger.info("Rule triggered log", {
+        data: parsed,
+        ruleId: ruleResult.ruleId,
+      });
       return;
     }
 
@@ -101,15 +107,16 @@ export function AppProvider({ children }: AppProviderProps) {
       const sample: RecordedSample = {
         ...parsed,
         recordedAt: Date.now(),
-        label: ruleResult.action === 'label' 
-          ? ruleResult.value 
-          : currentClassRef.current || undefined,
+        label:
+          ruleResult.action === "label"
+            ? ruleResult.value
+            : currentClassRef.current || undefined,
       };
 
       setRecordedSamples((prev) => [...prev, sample]);
-      
+
       // Update stats
-      const label = sample.label || 'unlabeled';
+      const label = sample.label || "unlabeled";
       setStats((prev) => ({
         ...prev,
         totalSamples: prev.totalSamples + 1,
@@ -126,8 +133,14 @@ export function AppProvider({ children }: AppProviderProps) {
   useEffect(() => {
     const currentConfig = configRef.current;
     serialManagerRef.current = createSerialManager(currentConfig.serial);
-    parserRef.current = createParser(currentConfig.parser, currentConfig.fields);
-    formatterRef.current = createFormatter(currentConfig.export.template, currentConfig.fields);
+    parserRef.current = createParser(
+      currentConfig.parser,
+      currentConfig.fields
+    );
+    formatterRef.current = createFormatter(
+      currentConfig.export.template,
+      currentConfig.fields
+    );
     rulesEngine.setRules(currentConfig.rules);
 
     // Set up logger
@@ -141,16 +154,18 @@ export function AppProvider({ children }: AppProviderProps) {
     });
 
     // Subscribe to serial status changes
-    const unsubscribeStatus = serialManagerRef.current.onStatusChange((status) => {
-      setConnectionStatus(status);
-    });
+    const unsubscribeStatus = serialManagerRef.current.onStatusChange(
+      (status) => {
+        setConnectionStatus(status);
+      }
+    );
 
     // Subscribe to serial data
     const unsubscribeData = serialManagerRef.current.onData((line) => {
       handleIncomingData(line);
     });
 
-    logger.info('Application initialized');
+    logger.info("Application initialized");
 
     return () => {
       unsubscribeLogs();
@@ -218,32 +233,35 @@ export function AppProvider({ children }: AppProviderProps) {
   }, []);
 
   // Recording methods
-  const startRecording = useCallback((classId?: string) => {
-    const currentConfig = configRef.current;
-    if (currentConfig.recording.enableLabeling && !classId) {
-      logger.warn('No class selected for recording');
-      return;
-    }
+  const startRecording = useCallback(
+    (classId?: string) => {
+      const currentConfig = configRef.current;
+      if (currentConfig.recording.enableLabeling && !classId) {
+        logger.warn("No class selected for recording");
+        return;
+      }
 
-    isRecordingRef.current = true;
-    currentClassRef.current = classId || null;
-    setIsRecording(true);
-    setCurrentClass(classId || null);
-    
-    setStats((prev) => ({
-      ...prev,
-      startTime: prev.startTime || Date.now(),
-    }));
+      isRecordingRef.current = true;
+      currentClassRef.current = classId || null;
+      setIsRecording(true);
+      setCurrentClass(classId || null);
 
-    logger.info('Recording started', { classId });
+      setStats((prev) => ({
+        ...prev,
+        startTime: prev.startTime || Date.now(),
+      }));
 
-    // Auto-stop timer
-    if (currentConfig.recording.autoStopSeconds > 0) {
-      recordingTimerRef.current = setTimeout(() => {
-        stopRecording();
-      }, currentConfig.recording.autoStopSeconds * 1000);
-    }
-  }, [stopRecording]);
+      logger.info("Recording started", { classId });
+
+      // Auto-stop timer
+      if (currentConfig.recording.autoStopSeconds > 0) {
+        recordingTimerRef.current = setTimeout(() => {
+          stopRecording();
+        }, currentConfig.recording.autoStopSeconds * 1000);
+      }
+    },
+    [stopRecording]
+  );
 
   const clearRecordedSamples = useCallback(() => {
     setRecordedSamples([]);
@@ -251,26 +269,31 @@ export function AppProvider({ children }: AppProviderProps) {
       totalSamples: 0,
       classCounts: {},
     });
-    logger.info('Recorded samples cleared');
+    logger.info("Recorded samples cleared");
   }, []);
 
   // Export methods
   const exportData = useCallback(() => {
     if (recordedSamples.length === 0) {
-      logger.warn('No data to export');
+      logger.warn("No data to export");
       return;
     }
 
     if (!formatterRef.current) return;
 
-    const csv = formatterRef.current.generateCSV(recordedSamples, config.export);
-    const filename = formatterRef.current.generateFilename(config.export.filename);
+    const csv = formatterRef.current.generateCSV(
+      recordedSamples,
+      config.export
+    );
+    const filename = formatterRef.current.generateFilename(
+      config.export.filename
+    );
     downloadCSV(csv, filename);
   }, [recordedSamples, config.export]);
 
   const previewExport = useCallback(() => {
     if (!formatterRef.current || recordedSamples.length === 0) {
-      return ['No data to preview'];
+      return ["No data to preview"];
     }
     return formatterRef.current.previewExport(recordedSamples, 5);
   }, [recordedSamples]);
@@ -285,7 +308,8 @@ export function AppProvider({ children }: AppProviderProps) {
     logger.downloadLogs();
   }, []);
 
-  const isSerialSupported = typeof navigator !== 'undefined' && 'serial' in navigator;
+  const isSerialSupported =
+    typeof navigator !== "undefined" && "serial" in navigator;
 
   const value: AppContextType = {
     config,

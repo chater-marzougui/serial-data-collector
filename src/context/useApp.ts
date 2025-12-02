@@ -1,12 +1,12 @@
-import { useContext } from 'react';
+import { useContext } from "react";
 import type {
   AppConfig,
   RecordedSample,
   ConnectionStatus,
   CollectionStats,
   LogEntry,
-} from '../types';
-import { AppContext } from './context';
+} from "../types";
+import { AppContext } from "./context";
 
 export interface AppContextType {
   // Configuration
@@ -50,7 +50,7 @@ export interface AppContextType {
 export function useApp(): AppContextType {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error('useApp must be used within an AppProvider');
+    throw new Error("useApp must be used within an AppProvider");
   }
   return context;
 }

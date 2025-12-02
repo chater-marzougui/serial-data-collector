@@ -1,5 +1,5 @@
-import type { RecordedSample, ExportConfig } from '../types';
-import { logger } from './Logger';
+import type { RecordedSample, ExportConfig } from "../types";
+import { logger } from "./Logger";
 
 class TemplateFormatter {
   private template: string;
@@ -24,14 +24,14 @@ class TemplateFormatter {
     // Replace timestamp placeholder
     result = result.replace(/\$\{timestamp\}/g, sample.timestamp.toString());
     result = result.replace(/\$\{recordedAt\}/g, sample.recordedAt.toString());
-    result = result.replace(/\$\{label\}/g, sample.label || '');
+    result = result.replace(/\$\{label\}/g, sample.label || "");
     result = result.replace(/\$\{raw\}/g, this.escapeCSV(sample.raw));
 
     // Replace field placeholders
     for (const field of this.fields) {
-      const regex = new RegExp(`\\$\\{${this.escapeRegex(field)}\\}`, 'g');
+      const regex = new RegExp(`\\$\\{${this.escapeRegex(field)}\\}`, "g");
       const value = sample.fields[field];
-      const stringValue = value !== undefined ? String(value) : '';
+      const stringValue = value !== undefined ? String(value) : "";
       result = result.replace(regex, this.escapeCSV(stringValue));
     }
 
@@ -41,9 +41,7 @@ class TemplateFormatter {
   formatHeader(): string {
     // Extract field names from template
     const placeholders = this.template.match(/\$\{([^}]+)\}/g) || [];
-    return placeholders
-      .map(p => p.slice(2, -1))
-      .join(',');
+    return placeholders.map((p) => p.slice(2, -1)).join(",");
   }
 
   generateCSV(samples: RecordedSample[], config: ExportConfig): string {
@@ -57,7 +55,7 @@ class TemplateFormatter {
       lines.push(this.formatSample(sample));
     }
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   validateTemplate(): { valid: boolean; warnings: string[]; errors: string[] } {
@@ -66,10 +64,16 @@ class TemplateFormatter {
 
     // Extract placeholders from template
     const placeholders = this.template.match(/\$\{([^}]+)\}/g) || [];
-    const placeholderNames = placeholders.map(p => p.slice(2, -1));
+    const placeholderNames = placeholders.map((p) => p.slice(2, -1));
 
     // Check for unknown placeholders
-    const knownFields = ['timestamp', 'recordedAt', 'label', 'raw', ...this.fields];
+    const knownFields = [
+      "timestamp",
+      "recordedAt",
+      "label",
+      "raw",
+      ...this.fields,
+    ];
     for (const name of placeholderNames) {
       if (!knownFields.includes(name)) {
         warnings.push(`Unknown field in template: ${name}`);
@@ -78,13 +82,13 @@ class TemplateFormatter {
 
     // Check if template is empty
     if (!this.template.trim()) {
-      errors.push('Template is empty');
+      errors.push("Template is empty");
     }
 
     // Check for unclosed placeholders
     const unclosed = this.template.match(/\$\{[^}]*$/);
     if (unclosed) {
-      errors.push('Unclosed placeholder in template');
+      errors.push("Unclosed placeholder in template");
     }
 
     return {
@@ -113,33 +117,42 @@ class TemplateFormatter {
   generateFilename(template: string): string {
     let result = template;
     result = result.replace(/\$\{timestamp\}/g, Date.now().toString());
-    result = result.replace(/\$\{date\}/g, new Date().toISOString().split('T')[0]);
-    result = result.replace(/\$\{datetime\}/g, new Date().toISOString().replace(/[:.]/g, '-'));
+    result = result.replace(
+      /\$\{date\}/g,
+      new Date().toISOString().split("T")[0]
+    );
+    result = result.replace(
+      /\$\{datetime\}/g,
+      new Date().toISOString().replace(/[:.]/g, "-")
+    );
     return result;
   }
 
   private escapeCSV(value: string): string {
-    if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+    if (value.includes(",") || value.includes('"') || value.includes("\n")) {
       return `"${value.replace(/"/g, '""')}"`;
     }
     return value;
   }
 
   private escapeRegex(string: string): string {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
 }
 
-export const createFormatter = (template: string, fields: string[]): TemplateFormatter => {
+export const createFormatter = (
+  template: string,
+  fields: string[]
+): TemplateFormatter => {
   return new TemplateFormatter(template, fields);
 };
 
 export const downloadCSV = (content: string, filename: string): void => {
-  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
-  a.download = filename.endsWith('.csv') ? filename : `${filename}.csv`;
+  a.download = filename.endsWith(".csv") ? filename : `${filename}.csv`;
   a.click();
   URL.revokeObjectURL(url);
   logger.info(`Exported CSV: ${filename}`);

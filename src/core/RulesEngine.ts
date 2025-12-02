@@ -1,31 +1,31 @@
-import type { RuleConfig, RuleContext, RuleResult, ParsedData } from '../types';
-import { logger } from './Logger';
+import type { RuleConfig, RuleContext, RuleResult, ParsedData } from "../types";
+import { logger } from "./Logger";
 
 class RulesEngine {
   private rules: RuleConfig[] = [];
 
   setRules(rules: RuleConfig[]): void {
-    this.rules = rules.filter(r => r.enabled);
+    this.rules = rules.filter((r) => r.enabled);
     logger.info(`Rules engine updated with ${this.rules.length} active rules`);
   }
 
   addRule(rule: RuleConfig): void {
     this.rules.push(rule);
     if (rule.enabled) {
-      logger.info('Rule added', { ruleId: rule.id });
+      logger.info("Rule added", { ruleId: rule.id });
     }
   }
 
   removeRule(ruleId: string): void {
-    this.rules = this.rules.filter(r => r.id !== ruleId);
-    logger.info('Rule removed', { ruleId });
+    this.rules = this.rules.filter((r) => r.id !== ruleId);
+    logger.info("Rule removed", { ruleId });
   }
 
   updateRule(ruleId: string, updates: Partial<RuleConfig>): void {
-    const index = this.rules.findIndex(r => r.id === ruleId);
+    const index = this.rules.findIndex((r) => r.id === ruleId);
     if (index !== -1) {
       this.rules[index] = { ...this.rules[index], ...updates };
-      logger.info('Rule updated', { ruleId });
+      logger.info("Rule updated", { ruleId });
     }
   }
 
@@ -41,10 +41,13 @@ class RulesEngine {
 
       try {
         const matches = this.evaluateCondition(rule.condition, context);
-        
+
         if (matches) {
-          logger.debug('Rule matched', { ruleId: rule.id, condition: rule.condition });
-          
+          logger.debug("Rule matched", {
+            ruleId: rule.id,
+            condition: rule.condition,
+          });
+
           return {
             action: rule.action,
             value: rule.value,
@@ -52,18 +55,20 @@ class RulesEngine {
           };
         }
       } catch (error) {
-        logger.warn('Rule evaluation error', { ruleId: rule.id, error });
+        logger.warn("Rule evaluation error", { ruleId: rule.id, error });
       }
     }
 
-    return { action: 'pass' };
+    return { action: "pass" };
   }
 
   private evaluateCondition(condition: string, context: RuleContext): boolean {
     // Parse different condition types
-    
+
     // Simple comparison: "fieldX > 300"
-    const comparisonMatch = condition.match(/^(\w+)\s*(>|<|>=|<=|==|!=)\s*(.+)$/);
+    const comparisonMatch = condition.match(
+      /^(\w+)\s*(>|<|>=|<=|==|!=)\s*(.+)$/
+    );
     if (comparisonMatch) {
       const [, field, operator, valueStr] = comparisonMatch;
       const fieldValue = context.fields[field];
@@ -78,7 +83,9 @@ class RulesEngine {
     }
 
     // Regex match: "regex matches /^SYS:/"
-    const regexMatch = condition.match(/^regex\s+matches\s+\/(.+)\/([gimsu]*)$/i);
+    const regexMatch = condition.match(
+      /^regex\s+matches\s+\/(.+)\/([gimsu]*)$/i
+    );
     if (regexMatch) {
       const regex = new RegExp(regexMatch[1], regexMatch[2]);
       return regex.test(context.raw);
@@ -98,7 +105,9 @@ class RulesEngine {
     }
 
     // Starts with: "line startsWith 'PREFIX'"
-    const startsWithMatch = condition.match(/^line\s+startsWith\s+['"](.+)['"]$/i);
+    const startsWithMatch = condition.match(
+      /^line\s+startsWith\s+['"](.+)['"]$/i
+    );
     if (startsWithMatch) {
       return context.raw.startsWith(startsWithMatch[1]);
     }
@@ -113,11 +122,11 @@ class RulesEngine {
     const boolMatch = condition.match(/^(\w+)\s+is\s+(true|false)$/i);
     if (boolMatch) {
       const fieldValue = context.fields[boolMatch[1]];
-      const expectedBool = boolMatch[2].toLowerCase() === 'true';
+      const expectedBool = boolMatch[2].toLowerCase() === "true";
       return fieldValue === expectedBool;
     }
 
-    logger.warn('Unknown condition format', { condition });
+    logger.warn("Unknown condition format", { condition });
     return false;
   }
 
@@ -127,12 +136,14 @@ class RulesEngine {
     if (!isNaN(num)) return num;
 
     // Boolean
-    if (valueStr.toLowerCase() === 'true') return true;
-    if (valueStr.toLowerCase() === 'false') return false;
+    if (valueStr.toLowerCase() === "true") return true;
+    if (valueStr.toLowerCase() === "false") return false;
 
     // String (strip quotes if present)
-    if ((valueStr.startsWith("'") && valueStr.endsWith("'")) ||
-        (valueStr.startsWith('"') && valueStr.endsWith('"'))) {
+    if (
+      (valueStr.startsWith("'") && valueStr.endsWith("'")) ||
+      (valueStr.startsWith('"') && valueStr.endsWith('"'))
+    ) {
       return valueStr.slice(1, -1);
     }
 
@@ -146,19 +157,32 @@ class RulesEngine {
   ): boolean {
     if (fieldValue === undefined) return false;
 
-    const numField = typeof fieldValue === 'number' ? fieldValue : parseFloat(String(fieldValue));
-    const numCompare = typeof compareValue === 'number' ? compareValue : parseFloat(String(compareValue));
+    const numField =
+      typeof fieldValue === "number"
+        ? fieldValue
+        : parseFloat(String(fieldValue));
+    const numCompare =
+      typeof compareValue === "number"
+        ? compareValue
+        : parseFloat(String(compareValue));
 
     // Use numeric comparison if both values are numbers
     if (!isNaN(numField) && !isNaN(numCompare)) {
       switch (operator) {
-        case '>': return numField > numCompare;
-        case '<': return numField < numCompare;
-        case '>=': return numField >= numCompare;
-        case '<=': return numField <= numCompare;
-        case '==': return numField === numCompare;
-        case '!=': return numField !== numCompare;
-        default: return false;
+        case ">":
+          return numField > numCompare;
+        case "<":
+          return numField < numCompare;
+        case ">=":
+          return numField >= numCompare;
+        case "<=":
+          return numField <= numCompare;
+        case "==":
+          return numField === numCompare;
+        case "!=":
+          return numField !== numCompare;
+        default:
+          return false;
       }
     }
 
@@ -167,13 +191,20 @@ class RulesEngine {
     const strCompare = String(compareValue);
 
     switch (operator) {
-      case '==': return strField === strCompare;
-      case '!=': return strField !== strCompare;
-      case '>': return strField > strCompare;
-      case '<': return strField < strCompare;
-      case '>=': return strField >= strCompare;
-      case '<=': return strField <= strCompare;
-      default: return false;
+      case "==":
+        return strField === strCompare;
+      case "!=":
+        return strField !== strCompare;
+      case ">":
+        return strField > strCompare;
+      case "<":
+        return strField < strCompare;
+      case ">=":
+        return strField >= strCompare;
+      case "<=":
+        return strField <= strCompare;
+      default:
+        return false;
     }
   }
 
@@ -182,7 +213,7 @@ class RulesEngine {
   }
 
   getActiveRules(): RuleConfig[] {
-    return this.rules.filter(r => r.enabled);
+    return this.rules.filter((r) => r.enabled);
   }
 
   validateRule(condition: string): { valid: boolean; error?: string } {
@@ -206,7 +237,8 @@ class RulesEngine {
 
     return {
       valid: false,
-      error: 'Invalid condition format. Examples: "value > 100", "line contains \'ERR\'"',
+      error:
+        'Invalid condition format. Examples: "value > 100", "line contains \'ERR\'"',
     };
   }
 }

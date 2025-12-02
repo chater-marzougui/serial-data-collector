@@ -1,19 +1,5 @@
-import { Circle, StopCircle } from 'lucide-react';
-import { useApp } from '../context';
-
-// Color palette for dynamic classes
-const CLASS_COLORS = [
-  'bg-blue-500',
-  'bg-green-500',
-  'bg-purple-500',
-  'bg-orange-500',
-  'bg-pink-500',
-  'bg-cyan-500',
-  'bg-yellow-500',
-  'bg-red-500',
-  'bg-indigo-500',
-  'bg-teal-500',
-];
+import { Circle, StopCircle } from "lucide-react";
+import { useApp } from "../context";
 
 export function RecordingPanel() {
   const {
@@ -26,7 +12,7 @@ export function RecordingPanel() {
     stats,
   } = useApp();
 
-  const isConnected = connectionStatus === 'connected';
+  const isConnected = connectionStatus === "connected";
   const enableLabeling = config.recording.enableLabeling;
   const classes = config.classes;
   const autoStopSeconds = config.recording.autoStopSeconds;
@@ -34,12 +20,10 @@ export function RecordingPanel() {
   // No labeling mode - simple record button
   if (!enableLabeling) {
     return (
-      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-        <h2 className="text-2xl font-bold mb-4">Record Data</h2>
-
+      <div>
         {!isConnected && (
-          <div className="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-4 mb-4">
-            <p className="text-yellow-200">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <p className="text-yellow-800 text-sm">
               ⚠️ Connect device first to start recording
             </p>
           </div>
@@ -50,9 +34,9 @@ export function RecordingPanel() {
           disabled={!isConnected}
           className={`w-full p-6 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-3 ${
             isRecording
-              ? 'bg-red-500 border-red-400 animate-pulse'
-              : 'bg-blue-500 border-transparent hover:scale-105'
-          } disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100`}
+              ? "bg-red-50 border-red-200 text-red-600 animate-pulse"
+              : "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:border-blue-300"
+          } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50 disabled:border-gray-200 disabled:text-gray-400`}
         >
           {isRecording ? (
             <StopCircle className="w-12 h-12" />
@@ -60,7 +44,7 @@ export function RecordingPanel() {
             <Circle className="w-12 h-12" />
           )}
           <span className="font-bold text-lg">
-            {isRecording ? 'Stop Recording' : 'Start Recording'}
+            {isRecording ? "Stop Recording" : "Start Recording"}
           </span>
           <span className="text-sm opacity-80">
             {isRecording
@@ -70,7 +54,7 @@ export function RecordingPanel() {
         </button>
 
         {isRecording && autoStopSeconds > 0 && (
-          <p className="text-sm text-gray-400 mt-2 text-center">
+          <p className="text-sm text-gray-500 mt-2 text-center">
             Auto-stops in {autoStopSeconds} seconds
           </p>
         )}
@@ -80,50 +64,46 @@ export function RecordingPanel() {
 
   // Labeling mode - class buttons
   return (
-    <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-      <h2 className="text-2xl font-bold mb-4">Record Labeled Data</h2>
-
+    <div>
       {!isConnected && (
-        <div className="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-4 mb-4">
-          <p className="text-yellow-200">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+          <p className="text-yellow-800 text-sm">
             ⚠️ Connect device first to start recording
           </p>
         </div>
       )}
 
       {classes.length === 0 ? (
-        <div className="bg-gray-700/50 rounded-lg p-4 text-center">
-          <p className="text-gray-300">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+          <p className="text-gray-500">
             No classes configured. Add classes in the Config panel.
           </p>
         </div>
       ) : (
-        <div className={`grid gap-4 ${classes.length <= 4 ? 'grid-cols-2' : 'grid-cols-3'}`}>
-          {classes.map((cls, index) => {
-            const isCurrentlyRecording = isRecording && currentClass === cls.id;
-            const count = stats.classCounts[cls.id] || 0;
-            const colorClass = cls.color || CLASS_COLORS[index % CLASS_COLORS.length];
-
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {classes.map((cls) => {
+            const isActive = isRecording && currentClass === cls.id;
             return (
               <button
                 key={cls.id}
-                onClick={() =>
-                  isCurrentlyRecording
-                    ? stopRecording()
-                    : startRecording(cls.id)
-                }
-                disabled={!isConnected || (isRecording && currentClass !== cls.id)}
-                className={`p-4 rounded-xl border-2 transition-all ${
-                  isCurrentlyRecording
-                    ? 'bg-red-500 border-red-400 animate-pulse'
-                    : `${colorClass} border-transparent hover:scale-105`
-                } disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100`}
+                onClick={() => {
+                  if (isRecording && currentClass === cls.id) {
+                    stopRecording();
+                  } else {
+                    startRecording(cls.id);
+                  }
+                }}
+                disabled={!isConnected}
+                className={`p-4 rounded-lg border-2 transition-all flex flex-col items-center justify-center gap-2 min-h-[100px] ${
+                  isActive
+                    ? `${cls.color} text-white border-transparent shadow-md scale-105`
+                    : "bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100`}
               >
-                <Circle className="w-8 h-8 mx-auto mb-2" />
-                <h3 className="font-bold text-sm mb-1 truncate">{cls.name}</h3>
-                <p className="text-xs opacity-80">
-                  {isCurrentlyRecording ? 'Recording...' : `${count} samples`}
-                </p>
+                <span className="font-bold text-lg">{cls.name}</span>
+                {isActive && (
+                  <span className="text-xs animate-pulse">Recording...</span>
+                )}
               </button>
             );
           })}
@@ -131,18 +111,13 @@ export function RecordingPanel() {
       )}
 
       {isRecording && (
-        <div className="mt-4 bg-red-900/30 border border-red-500 rounded-lg p-4">
-          <p className="font-semibold">
-            🔴 Recording: {classes.find((c) => c.id === currentClass)?.name}
-          </p>
-          {autoStopSeconds > 0 && (
-            <p className="text-sm mt-1">Auto-stops in {autoStopSeconds} seconds.</p>
-          )}
+        <div className="mt-6 flex justify-center">
           <button
-            onClick={stopRecording}
-            className="mt-3 w-full bg-red-600 hover:bg-red-700 py-2 rounded-lg font-semibold"
+            onClick={() => stopRecording()}
+            className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-full hover:bg-red-700 shadow-md transition-colors font-bold"
           >
-            Stop Recording
+            <StopCircle className="w-5 h-5" />
+            Stop Recording ({stats.totalSamples} samples)
           </button>
         </div>
       )}
