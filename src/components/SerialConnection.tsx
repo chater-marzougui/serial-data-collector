@@ -1,7 +1,9 @@
 import { Plug, Unplug } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useApp } from "../context";
 
 export function SerialConnection() {
+  const { t } = useTranslation();
   const { connectionStatus, connect, disconnect, isSerialSupported, config } =
     useApp();
 
@@ -10,20 +12,19 @@ export function SerialConnection() {
 
   if (!isSerialSupported) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <h2 className="text-lg font-bold mb-2 text-red-800">
-          Web Serial API Not Supported
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+        <h2 className="text-lg font-bold mb-2 text-red-800 dark:text-red-200">
+          {t("connection.notSupported.title")}
         </h2>
-        <p className="text-sm text-red-600">
-          Please use Chrome, Edge, or Opera browser to access serial port
-          features.
+        <p className="text-sm text-red-600 dark:text-red-300">
+          {t("connection.notSupported.message")}
         </p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div
@@ -36,15 +37,15 @@ export function SerialConnection() {
             } animate-pulse`}
           />
           <div>
-            <span className="font-semibold block text-gray-900">
+            <span className="font-semibold block text-gray-900 dark:text-white">
               {isConnected
-                ? "Connected"
+                ? t("connection.status.connected")
                 : isConnecting
-                ? "Connecting..."
-                : "Disconnected"}
+                ? t("connection.status.connecting")
+                : t("connection.status.disconnected")}
             </span>
-            <span className="text-sm text-gray-500">
-              {config.serial.baudRate} baud
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {t("connection.baud", { rate: config.serial.baudRate })}
             </span>
           </div>
         </div>
@@ -62,12 +63,12 @@ export function SerialConnection() {
           {isConnected ? (
             <>
               <Unplug className="w-4 h-4" />
-              Disconnect
+              {t("connection.disconnect")}
             </>
           ) : (
             <>
               <Plug className="w-4 h-4" />
-              {isConnecting ? "Connecting..." : "Connect Device"}
+              {isConnecting ? t("connection.status.connecting") : t("connection.connect")}
             </>
           )}
         </button>

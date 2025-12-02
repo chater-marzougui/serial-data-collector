@@ -1,0 +1,183 @@
+{
+  "nav": {
+    "title": "Serial Data Collector",
+    "subtitle": "Professional Data Acquisition Framework",
+    "settings": "Settings"
+  },
+  "connection": {
+    "status": {
+      "connected": "Connected",
+      "connecting": "Connecting...",
+      "disconnected": "Disconnected"
+    },
+    "baud": "{{rate}} baud",
+    "connect": "Connect Device",
+    "disconnect": "Disconnect",
+    "notSupported": {
+      "title": "Web Serial API Not Supported",
+      "message": "Please use Chrome, Edge, or Opera browser to access serial port features."
+    }
+  },
+  "liveStream": {
+    "title": "Live Data Stream",
+    "pause": "Pause",
+    "resume": "Resume",
+    "clear": "Clear",
+    "connectPrompt": "Connect a device to see data...",
+    "waitingData": "Waiting for data...",
+    "pausedMessage": "Stream paused - new data is being buffered"
+  },
+  "recording": {
+    "title": "Recording Control",
+    "start": "Start Recording",
+    "stop": "Stop Recording",
+    "recording": "Recording...",
+    "samples": "{{count}} samples",
+    "samplesCollected": "{{count}} samples collected",
+    "autoStop": "Auto-stops in {{seconds}} seconds",
+    "connectFirst": "Connect device first to start recording",
+    "noClasses": "No classes configured. Add classes in the Config panel."
+  },
+  "stats": {
+    "title": "Statistics",
+    "samples": "Samples",
+    "totalSamples": "Total Samples",
+    "unlabeled": "Unlabeled",
+    "started": "Started",
+    "lastSample": "Last sample"
+  },
+  "export": {
+    "title": "Export Data",
+    "template": "Export Template",
+    "templateHint": "Use ${field} syntax",
+    "filename": "Filename Template",
+    "includeHeader": "Include header row",
+    "showPreview": "Show Preview",
+    "hidePreview": "Hide Preview",
+    "samplesReady": "{{count}} samples ready for export",
+    "exportCsv": "Export CSV",
+    "noData": "No data to export",
+    "noPreview": "No data to preview",
+    "available": "Available",
+    "clearData": "Clear all recorded data?",
+    "validation": {
+      "unknownField": "Unknown field: {{name}}",
+      "emptyTemplate": "Template is empty",
+      "unclosedPlaceholder": "Unclosed placeholder"
+    }
+  },
+  "logs": {
+    "title": "System Logs",
+    "allLevels": "All levels",
+    "debug": "Debug",
+    "info": "Info",
+    "warn": "Warn",
+    "error": "Error",
+    "entries": "{{count}} entries",
+    "download": "Download logs",
+    "clear": "Clear logs",
+    "clearConfirm": "Clear all logs?",
+    "noLogs": "No logs to display"
+  },
+  "config": {
+    "title": "Configuration",
+    "tabs": {
+      "serial": "Serial",
+      "parser": "Parser",
+      "classes": "Classes",
+      "rules": "Rules",
+      "recording": "Recording",
+      "logging": "Logging"
+    },
+    "serial": {
+      "baudRate": "Baud Rate",
+      "delimiter": "Delimiter",
+      "encoding": "Encoding"
+    },
+    "parser": {
+      "type": "Parser Type",
+      "types": {
+        "split": "Split by delimiter",
+        "regex": "Regular expression",
+        "json": "JSON",
+        "custom": "Custom parser"
+      },
+      "splitDelimiter": "Split Delimiter",
+      "regexPattern": "Regex Pattern",
+      "fields": "Fields (comma-separated)",
+      "skipLines": "Skip Lines (patterns, one per line)"
+    },
+    "classes": {
+      "id": "ID",
+      "name": "Name",
+      "addClass": "Add Class",
+      "colors": {
+        "blue": "Blue",
+        "green": "Green",
+        "purple": "Purple",
+        "orange": "Orange",
+        "pink": "Pink",
+        "cyan": "Cyan",
+        "yellow": "Yellow",
+        "red": "Red"
+      }
+    },
+    "rules": {
+      "description": "Define rules to automatically label, ignore, or log data based on conditions.",
+      "addRule": "Add Rule",
+      "actions": {
+        "label": "Set label",
+        "ignore": "Ignore",
+        "log": "Log only"
+      },
+      "labelValue": "Label value",
+      "examples": {
+        "title": "Example conditions:",
+        "ex1": "value > 100",
+        "ex2": "line contains 'ERR'",
+        "ex3": "regex matches /^SYS:/"
+      }
+    },
+    "recording": {
+      "enableLabeling": "Enable class labeling",
+      "autoStop": "Auto-stop after (seconds, 0 = disabled)"
+    },
+    "logging": {
+      "level": "Log Level",
+      "maxEntries": "Max Log Entries",
+      "persistLogs": "Persist logs to browser storage"
+    },
+    "import": "Import",
+    "export": "Export",
+    "reset": "Reset",
+    "resetConfirm": "Reset all settings to defaults?",
+    "invalidFile": "Invalid configuration file"
+  },
+  "quickStart": {
+    "title": "Quick Start Guide",
+    "step1": "Configure serial settings in the Settings menu.",
+    "step2": "Define data fields and class labels.",
+    "step3": "Connect your device and verify data stream.",
+    "step4": "Record data samples with optional labeling.",
+    "step5": "Export dataset to CSV/JSON."
+  },
+  "visualization": {
+    "title": "Data Visualization",
+    "sampling": "Sampling",
+    "stepSize": "Step Size",
+    "columns": "Columns",
+    "selectColumns": "Select columns to display",
+    "noData": "No data to visualize. Start recording to collect data.",
+    "samples": "{{count}} samples",
+    "displayedSamples": "Displaying {{displayed}} of {{total}} samples",
+    "classLabels": "Class Labels",
+    "showLabels": "Show class labels on chart"
+  },
+  "footer": {
+    "copyright": "© {{year}} Serial Data Collector Framework. All rights reserved.",
+    "author": "Created by Chater Marzougui"
+  },
+  "common": {
+    "close": "Close"
+  }
+}

@@ -8,6 +8,7 @@ import {
   Download,
   X,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useApp } from "../context";
 import type { ClassConfig, RuleConfig } from "../types";
 
@@ -17,6 +18,7 @@ interface ConfigPanelProps {
 }
 
 export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
+  const { t } = useTranslation();
   const { config, updateConfig, resetConfig, importConfig, exportConfig } =
     useApp();
   const [activeTab, setActiveTab] = useState<
@@ -36,7 +38,7 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
         try {
           importConfig(text);
         } catch {
-          alert("Invalid configuration file");
+          alert(t("config.invalidFile"));
         }
       }
     };
@@ -54,18 +56,27 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
     URL.revokeObjectURL(url);
   };
 
+  const tabs = [
+    { key: "serial" as const, label: t("config.tabs.serial") },
+    { key: "parser" as const, label: t("config.tabs.parser") },
+    { key: "classes" as const, label: t("config.tabs.classes") },
+    { key: "rules" as const, label: t("config.tabs.rules") },
+    { key: "recording" as const, label: t("config.tabs.recording") },
+    { key: "logging" as const, label: t("config.tabs.logging") },
+  ];
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <Settings className="w-5 h-5 text-gray-600" />
-            <h2 className="text-xl font-bold text-gray-900">Configuration</h2>
+            <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t("config.title")}</h2>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
           >
             <X className="w-5 h-5" />
           </button>
@@ -74,27 +85,18 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
           {/* Tabs */}
-          <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-4 mb-6">
-            {(
-              [
-                "serial",
-                "parser",
-                "classes",
-                "rules",
-                "recording",
-                "logging",
-              ] as const
-            ).map((tab) => (
+          <div className="flex flex-wrap gap-2 border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+            {tabs.map((tab) => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
                 className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === tab
+                  activeTab === tab.key
                     ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                 }`}
               >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tab.label}
               </button>
             ))}
           </div>
@@ -103,8 +105,8 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
           {activeTab === "serial" && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Baud Rate
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t("config.serial.baudRate")}
                 </label>
                 <select
                   value={config.serial.baudRate}
@@ -116,7 +118,7 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       },
                     })
                   }
-                  className="w-full bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   {[
                     9600, 19200, 38400, 57600, 115200, 230400, 460800, 921600,
@@ -128,8 +130,8 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Delimiter
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t("config.serial.delimiter")}
                 </label>
                 <input
                   type="text"
@@ -147,13 +149,13 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       },
                     })
                   }
-                  className="w-full bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="\\n"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Encoding
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t("config.serial.encoding")}
                 </label>
                 <select
                   value={config.serial.encoding}
@@ -162,7 +164,7 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       serial: { ...config.serial, encoding: e.target.value },
                     })
                   }
-                  className="w-full bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="utf-8">UTF-8</option>
                   <option value="ascii">ASCII</option>
@@ -176,8 +178,8 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
           {activeTab === "parser" && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Parser Type
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t("config.parser.type")}
                 </label>
                 <select
                   value={config.parser.type}
@@ -193,19 +195,19 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       },
                     })
                   }
-                  className="w-full bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="split">Split by delimiter</option>
-                  <option value="regex">Regular expression</option>
-                  <option value="json">JSON</option>
-                  <option value="custom">Custom parser</option>
+                  <option value="split">{t("config.parser.types.split")}</option>
+                  <option value="regex">{t("config.parser.types.regex")}</option>
+                  <option value="json">{t("config.parser.types.json")}</option>
+                  <option value="custom">{t("config.parser.types.custom")}</option>
                 </select>
               </div>
 
               {config.parser.type === "split" && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Split Delimiter
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {t("config.parser.splitDelimiter")}
                   </label>
                   <input
                     type="text"
@@ -218,7 +220,7 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                         },
                       })
                     }
-                    className="w-full bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder=","
                   />
                 </div>
@@ -226,8 +228,8 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
 
               {config.parser.type === "regex" && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Regex Pattern
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    {t("config.parser.regexPattern")}
                   </label>
                   <input
                     type="text"
@@ -237,15 +239,15 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                         parser: { ...config.parser, regex: e.target.value },
                       })
                     }
-                    className="w-full bg-white rounded-md p-2 border border-gray-300 text-gray-900 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="e.g., ^(\d+),(\d+),(\d+)$"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Fields (comma-separated)
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t("config.parser.fields")}
                 </label>
                 <input
                   type="text"
@@ -258,14 +260,14 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                         .filter(Boolean),
                     })
                   }
-                  className="w-full bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="timestamp, value1, value2"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Skip Lines (patterns, one per line)
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t("config.parser.skipLines")}
                 </label>
                 <textarea
                   value={(config.parser.skipLines || []).join("\\n")}
@@ -277,7 +279,7 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       },
                     })
                   }
-                  className="w-full bg-white rounded-md p-2 border border-gray-300 text-gray-900 font-mono text-sm h-20 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-mono text-sm h-20 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="# Comments\n/^DEBUG:/"
                 />
               </div>
@@ -297,8 +299,8 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       newClasses[index] = { ...cls, id: e.target.value };
                       updateConfig({ classes: newClasses });
                     }}
-                    className="flex-1 bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="ID"
+                    className="flex-1 bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder={t("config.classes.id")}
                   />
                   <input
                     type="text"
@@ -308,8 +310,8 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       newClasses[index] = { ...cls, name: e.target.value };
                       updateConfig({ classes: newClasses });
                     }}
-                    className="flex-1 bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Name"
+                    className="flex-1 bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder={t("config.classes.name")}
                   />
                   <select
                     value={cls.color}
@@ -318,16 +320,16 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       newClasses[index] = { ...cls, color: e.target.value };
                       updateConfig({ classes: newClasses });
                     }}
-                    className="bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="bg-blue-500">Blue</option>
-                    <option value="bg-green-500">Green</option>
-                    <option value="bg-purple-500">Purple</option>
-                    <option value="bg-orange-500">Orange</option>
-                    <option value="bg-pink-500">Pink</option>
-                    <option value="bg-cyan-500">Cyan</option>
-                    <option value="bg-yellow-500">Yellow</option>
-                    <option value="bg-red-500">Red</option>
+                    <option value="bg-blue-500">{t("config.classes.colors.blue")}</option>
+                    <option value="bg-green-500">{t("config.classes.colors.green")}</option>
+                    <option value="bg-purple-500">{t("config.classes.colors.purple")}</option>
+                    <option value="bg-orange-500">{t("config.classes.colors.orange")}</option>
+                    <option value="bg-pink-500">{t("config.classes.colors.pink")}</option>
+                    <option value="bg-cyan-500">{t("config.classes.colors.cyan")}</option>
+                    <option value="bg-yellow-500">{t("config.classes.colors.yellow")}</option>
+                    <option value="bg-red-500">{t("config.classes.colors.red")}</option>
                   </select>
                   <button
                     onClick={() => {
@@ -336,7 +338,7 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       );
                       updateConfig({ classes: newClasses });
                     }}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-md"
+                    className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -351,10 +353,10 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                   };
                   updateConfig({ classes: [...config.classes, newClass] });
                 }}
-                className="w-full p-2 border-2 border-dashed border-gray-300 text-gray-600 rounded-md hover:border-blue-500 hover:text-blue-600 flex items-center justify-center gap-2 transition-colors"
+                className="w-full p-2 border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-md hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 flex items-center justify-center gap-2 transition-colors"
               >
                 <Plus className="w-4 h-4" />
-                Add Class
+                {t("config.classes.addClass")}
               </button>
             </div>
           )}
@@ -362,14 +364,13 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
           {/* Rules Tab */}
           {activeTab === "rules" && (
             <div className="space-y-4">
-              <p className="text-sm text-gray-500">
-                Define rules to automatically label, ignore, or log data based
-                on conditions.
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t("config.rules.description")}
               </p>
               {config.rules.map((rule, index) => (
                 <div
                   key={rule.id}
-                  className="bg-gray-50 rounded-lg p-3 space-y-2 border border-gray-200"
+                  className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 space-y-2 border border-gray-200 dark:border-gray-600"
                 >
                   <div className="flex gap-2 items-center">
                     <input
@@ -383,7 +384,7 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                         };
                         updateConfig({ rules: newRules });
                       }}
-                      className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                      className="w-4 h-4 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500"
                     />
                     <input
                       type="text"
@@ -396,7 +397,7 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                         };
                         updateConfig({ rules: newRules });
                       }}
-                      className="flex-1 bg-white rounded-md p-2 border border-gray-300 text-gray-900 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="flex-1 bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="e.g., value > 100"
                     />
                     <button
@@ -406,12 +407,12 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                         );
                         updateConfig({ rules: newRules });
                       }}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-md"
+                      className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                  <div className="flex gap-2 items-center pl-6">
+                  <div className="flex gap-2 items-center ps-6">
                     <select
                       value={rule.action}
                       onChange={(e) => {
@@ -422,11 +423,11 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                         };
                         updateConfig({ rules: newRules });
                       }}
-                      className="bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="label">Set label</option>
-                      <option value="ignore">Ignore</option>
-                      <option value="log">Log only</option>
+                      <option value="label">{t("config.rules.actions.label")}</option>
+                      <option value="ignore">{t("config.rules.actions.ignore")}</option>
+                      <option value="log">{t("config.rules.actions.log")}</option>
                     </select>
                     {rule.action === "label" && (
                       <input
@@ -437,8 +438,8 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                           newRules[index] = { ...rule, value: e.target.value };
                           updateConfig({ rules: newRules });
                         }}
-                        className="flex-1 bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Label value"
+                        className="flex-1 bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder={t("config.rules.labelValue")}
                       />
                     )}
                   </div>
@@ -455,16 +456,16 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                   };
                   updateConfig({ rules: [...config.rules, newRule] });
                 }}
-                className="w-full p-2 border-2 border-dashed border-gray-300 text-gray-600 rounded-md hover:border-blue-500 hover:text-blue-600 flex items-center justify-center gap-2 transition-colors"
+                className="w-full p-2 border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-md hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 flex items-center justify-center gap-2 transition-colors"
               >
                 <Plus className="w-4 h-4" />
-                Add Rule
+                {t("config.rules.addRule")}
               </button>
-              <div className="text-xs text-gray-500 space-y-1">
-                <p>Example conditions:</p>
-                <p className="font-mono">• value &gt; 100</p>
-                <p className="font-mono">• line contains 'ERR'</p>
-                <p className="font-mono">• regex matches /^SYS:/</p>
+              <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                <p>{t("config.rules.examples.title")}</p>
+                <p className="font-mono">• {t("config.rules.examples.ex1")}</p>
+                <p className="font-mono">• {t("config.rules.examples.ex2")}</p>
+                <p className="font-mono">• {t("config.rules.examples.ex3")}</p>
               </div>
             </div>
           )}
@@ -485,18 +486,18 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       },
                     })
                   }
-                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  className="w-4 h-4 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500"
                 />
                 <label
                   htmlFor="enableLabeling"
-                  className="text-sm font-medium text-gray-700"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  Enable class labeling
+                  {t("config.recording.enableLabeling")}
                 </label>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Auto-stop after (seconds, 0 = disabled)
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t("config.recording.autoStop")}
                 </label>
                 <input
                   type="number"
@@ -509,7 +510,7 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       },
                     })
                   }
-                  className="w-full bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   min="0"
                 />
               </div>
@@ -520,8 +521,8 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
           {activeTab === "logging" && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Log Level
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t("config.logging.level")}
                 </label>
                 <select
                   value={config.logging.level}
@@ -537,17 +538,17 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       },
                     })
                   }
-                  className="w-full bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="debug">Debug</option>
-                  <option value="info">Info</option>
-                  <option value="warn">Warn</option>
-                  <option value="error">Error</option>
+                  <option value="debug">{t("logs.debug")}</option>
+                  <option value="info">{t("logs.info")}</option>
+                  <option value="warn">{t("logs.warn")}</option>
+                  <option value="error">{t("logs.error")}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Max Log Entries
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t("config.logging.maxEntries")}
                 </label>
                 <input
                   type="number"
@@ -560,7 +561,7 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       },
                     })
                   }
-                  className="w-full bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   min="100"
                   max="10000"
                 />
@@ -578,13 +579,13 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                       },
                     })
                   }
-                  className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  className="w-4 h-4 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500"
                 />
                 <label
                   htmlFor="persistLogs"
-                  className="text-sm font-medium text-gray-700"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  Persist logs to browser storage
+                  {t("config.logging.persistLogs")}
                 </label>
               </div>
             </div>
@@ -592,32 +593,32 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+        <div className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-lg">
           <div className="flex gap-3">
             <button
               onClick={handleImport}
-              className="flex-1 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors"
+              className="flex-1 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center justify-center gap-2 transition-colors"
             >
               <Upload className="w-4 h-4" />
-              Import
+              {t("config.import")}
             </button>
             <button
               onClick={handleExport}
-              className="flex-1 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors"
+              className="flex-1 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 flex items-center justify-center gap-2 transition-colors"
             >
               <Download className="w-4 h-4" />
-              Export
+              {t("config.export")}
             </button>
             <button
               onClick={() => {
-                if (confirm("Reset all settings to defaults?")) {
+                if (confirm(t("config.resetConfirm"))) {
                   resetConfig();
                 }
               }}
-              className="flex-1 px-4 py-2 bg-white border border-red-200 text-red-600 rounded-md hover:bg-red-50 flex items-center justify-center gap-2 transition-colors"
+              className="flex-1 px-4 py-2 bg-white dark:bg-gray-700 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center gap-2 transition-colors"
             >
               <RotateCcw className="w-4 h-4" />
-              Reset
+              {t("config.reset")}
             </button>
           </div>
         </div>

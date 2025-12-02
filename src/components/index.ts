@@ -5,3 +5,4 @@ export { StatsPanel } from './StatsPanel';
 export { ConfigPanel } from './ConfigPanel';
 export { ExportPanel } from './ExportPanel';
 export { LoggerView } from './LoggerView';
+export { DataVisualization } from './DataVisualization';

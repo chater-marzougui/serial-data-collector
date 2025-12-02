@@ -1,0 +1,183 @@
+{
+  "nav": {
+    "title": "Collecteur de Données Série",
+    "subtitle": "Framework Professionnel d'Acquisition de Données",
+    "settings": "Paramètres"
+  },
+  "connection": {
+    "status": {
+      "connected": "Connecté",
+      "connecting": "Connexion...",
+      "disconnected": "Déconnecté"
+    },
+    "baud": "{{rate}} baud",
+    "connect": "Connecter l'Appareil",
+    "disconnect": "Déconnecter",
+    "notSupported": {
+      "title": "API Web Serial Non Supportée",
+      "message": "Veuillez utiliser Chrome, Edge ou Opera pour accéder aux fonctionnalités du port série."
+    }
+  },
+  "liveStream": {
+    "title": "Flux de Données en Direct",
+    "pause": "Pause",
+    "resume": "Reprendre",
+    "clear": "Effacer",
+    "connectPrompt": "Connectez un appareil pour voir les données...",
+    "waitingData": "En attente de données...",
+    "pausedMessage": "Flux en pause - les nouvelles données sont mises en mémoire tampon"
+  },
+  "recording": {
+    "title": "Contrôle d'Enregistrement",
+    "start": "Démarrer l'Enregistrement",
+    "stop": "Arrêter l'Enregistrement",
+    "recording": "Enregistrement...",
+    "samples": "{{count}} échantillons",
+    "samplesCollected": "{{count}} échantillons collectés",
+    "autoStop": "Arrêt automatique dans {{seconds}} secondes",
+    "connectFirst": "Connectez d'abord l'appareil pour commencer l'enregistrement",
+    "noClasses": "Aucune classe configurée. Ajoutez des classes dans le panneau de configuration."
+  },
+  "stats": {
+    "title": "Statistiques",
+    "samples": "Échantillons",
+    "totalSamples": "Total des Échantillons",
+    "unlabeled": "Non étiqueté",
+    "started": "Démarré",
+    "lastSample": "Dernier échantillon"
+  },
+  "export": {
+    "title": "Exporter les Données",
+    "template": "Modèle d'Export",
+    "templateHint": "Utilisez la syntaxe ${field}",
+    "filename": "Modèle de Nom de Fichier",
+    "includeHeader": "Inclure la ligne d'en-tête",
+    "showPreview": "Afficher l'Aperçu",
+    "hidePreview": "Masquer l'Aperçu",
+    "samplesReady": "{{count}} échantillons prêts à exporter",
+    "exportCsv": "Exporter CSV",
+    "noData": "Aucune donnée à exporter",
+    "noPreview": "Aucune donnée à prévisualiser",
+    "available": "Disponible",
+    "clearData": "Effacer toutes les données enregistrées ?",
+    "validation": {
+      "unknownField": "Champ inconnu : {{name}}",
+      "emptyTemplate": "Le modèle est vide",
+      "unclosedPlaceholder": "Placeholder non fermé"
+    }
+  },
+  "logs": {
+    "title": "Journaux Système",
+    "allLevels": "Tous les niveaux",
+    "debug": "Débogage",
+    "info": "Info",
+    "warn": "Avertissement",
+    "error": "Erreur",
+    "entries": "{{count}} entrées",
+    "download": "Télécharger les journaux",
+    "clear": "Effacer les journaux",
+    "clearConfirm": "Effacer tous les journaux ?",
+    "noLogs": "Aucun journal à afficher"
+  },
+  "config": {
+    "title": "Configuration",
+    "tabs": {
+      "serial": "Série",
+      "parser": "Analyseur",
+      "classes": "Classes",
+      "rules": "Règles",
+      "recording": "Enregistrement",
+      "logging": "Journalisation"
+    },
+    "serial": {
+      "baudRate": "Débit en Bauds",
+      "delimiter": "Délimiteur",
+      "encoding": "Encodage"
+    },
+    "parser": {
+      "type": "Type d'Analyseur",
+      "types": {
+        "split": "Diviser par délimiteur",
+        "regex": "Expression régulière",
+        "json": "JSON",
+        "custom": "Analyseur personnalisé"
+      },
+      "splitDelimiter": "Délimiteur de Division",
+      "regexPattern": "Modèle Regex",
+      "fields": "Champs (séparés par des virgules)",
+      "skipLines": "Lignes à ignorer (modèles, un par ligne)"
+    },
+    "classes": {
+      "id": "ID",
+      "name": "Nom",
+      "addClass": "Ajouter une Classe",
+      "colors": {
+        "blue": "Bleu",
+        "green": "Vert",
+        "purple": "Violet",
+        "orange": "Orange",
+        "pink": "Rose",
+        "cyan": "Cyan",
+        "yellow": "Jaune",
+        "red": "Rouge"
+      }
+    },
+    "rules": {
+      "description": "Définissez des règles pour étiqueter, ignorer ou journaliser automatiquement les données selon des conditions.",
+      "addRule": "Ajouter une Règle",
+      "actions": {
+        "label": "Définir l'étiquette",
+        "ignore": "Ignorer",
+        "log": "Journaliser uniquement"
+      },
+      "labelValue": "Valeur de l'étiquette",
+      "examples": {
+        "title": "Exemples de conditions :",
+        "ex1": "value > 100",
+        "ex2": "line contains 'ERR'",
+        "ex3": "regex matches /^SYS:/"
+      }
+    },
+    "recording": {
+      "enableLabeling": "Activer l'étiquetage des classes",
+      "autoStop": "Arrêt automatique après (secondes, 0 = désactivé)"
+    },
+    "logging": {
+      "level": "Niveau de Journal",
+      "maxEntries": "Nombre Maximum d'Entrées",
+      "persistLogs": "Persister les journaux dans le stockage du navigateur"
+    },
+    "import": "Importer",
+    "export": "Exporter",
+    "reset": "Réinitialiser",
+    "resetConfirm": "Réinitialiser tous les paramètres par défaut ?",
+    "invalidFile": "Fichier de configuration invalide"
+  },
+  "quickStart": {
+    "title": "Guide de Démarrage Rapide",
+    "step1": "Configurez les paramètres série dans le menu Paramètres.",
+    "step2": "Définissez les champs de données et les étiquettes de classe.",
+    "step3": "Connectez votre appareil et vérifiez le flux de données.",
+    "step4": "Enregistrez des échantillons de données avec étiquetage optionnel.",
+    "step5": "Exportez le jeu de données en CSV/JSON."
+  },
+  "visualization": {
+    "title": "Visualisation des Données",
+    "sampling": "Échantillonnage",
+    "stepSize": "Taille du Pas",
+    "columns": "Colonnes",
+    "selectColumns": "Sélectionnez les colonnes à afficher",
+    "noData": "Aucune donnée à visualiser. Commencez l'enregistrement pour collecter des données.",
+    "samples": "{{count}} échantillons",
+    "displayedSamples": "Affichage de {{displayed}} sur {{total}} échantillons",
+    "classLabels": "Étiquettes de Classe",
+    "showLabels": "Afficher les étiquettes de classe sur le graphique"
+  },
+  "footer": {
+    "copyright": "© {{year}} Framework Collecteur de Données Série. Tous droits réservés.",
+    "author": "Créé par Chater Marzougui"
+  },
+  "common": {
+    "close": "Fermer"
+  }
+}
