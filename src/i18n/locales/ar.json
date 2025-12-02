@@ -1,0 +1,183 @@
+{
+  "nav": {
+    "title": "جامع البيانات التسلسلية",
+    "subtitle": "إطار عمل احترافي لاكتساب البيانات",
+    "settings": "الإعدادات"
+  },
+  "connection": {
+    "status": {
+      "connected": "متصل",
+      "connecting": "جاري الاتصال...",
+      "disconnected": "غير متصل"
+    },
+    "baud": "{{rate}} بود",
+    "connect": "توصيل الجهاز",
+    "disconnect": "قطع الاتصال",
+    "notSupported": {
+      "title": "واجهة برمجة Web Serial غير مدعومة",
+      "message": "يرجى استخدام متصفح Chrome أو Edge أو Opera للوصول إلى ميزات المنفذ التسلسلي."
+    }
+  },
+  "liveStream": {
+    "title": "تدفق البيانات المباشر",
+    "pause": "إيقاف مؤقت",
+    "resume": "استئناف",
+    "clear": "مسح",
+    "connectPrompt": "قم بتوصيل جهاز لرؤية البيانات...",
+    "waitingData": "في انتظار البيانات...",
+    "pausedMessage": "تم إيقاف التدفق مؤقتًا - يتم تخزين البيانات الجديدة"
+  },
+  "recording": {
+    "title": "التحكم في التسجيل",
+    "start": "بدء التسجيل",
+    "stop": "إيقاف التسجيل",
+    "recording": "جاري التسجيل...",
+    "samples": "{{count}} عينة",
+    "samplesCollected": "تم جمع {{count}} عينة",
+    "autoStop": "توقف تلقائي في {{seconds}} ثانية",
+    "connectFirst": "قم بتوصيل الجهاز أولاً لبدء التسجيل",
+    "noClasses": "لم يتم تكوين أي فئات. أضف فئات في لوحة الإعدادات."
+  },
+  "stats": {
+    "title": "الإحصائيات",
+    "samples": "العينات",
+    "totalSamples": "إجمالي العينات",
+    "unlabeled": "غير مصنف",
+    "started": "بدأ",
+    "lastSample": "آخر عينة"
+  },
+  "export": {
+    "title": "تصدير البيانات",
+    "template": "قالب التصدير",
+    "templateHint": "استخدم صيغة ${field}",
+    "filename": "قالب اسم الملف",
+    "includeHeader": "تضمين صف العنوان",
+    "showPreview": "عرض المعاينة",
+    "hidePreview": "إخفاء المعاينة",
+    "samplesReady": "{{count}} عينة جاهزة للتصدير",
+    "exportCsv": "تصدير CSV",
+    "noData": "لا توجد بيانات للتصدير",
+    "noPreview": "لا توجد بيانات للمعاينة",
+    "available": "متاح",
+    "clearData": "مسح جميع البيانات المسجلة؟",
+    "validation": {
+      "unknownField": "حقل غير معروف: {{name}}",
+      "emptyTemplate": "القالب فارغ",
+      "unclosedPlaceholder": "عنصر نائب غير مغلق"
+    }
+  },
+  "logs": {
+    "title": "سجلات النظام",
+    "allLevels": "جميع المستويات",
+    "debug": "تصحيح",
+    "info": "معلومات",
+    "warn": "تحذير",
+    "error": "خطأ",
+    "entries": "{{count}} إدخال",
+    "download": "تنزيل السجلات",
+    "clear": "مسح السجلات",
+    "clearConfirm": "مسح جميع السجلات؟",
+    "noLogs": "لا توجد سجلات للعرض"
+  },
+  "config": {
+    "title": "الإعدادات",
+    "tabs": {
+      "serial": "التسلسلي",
+      "parser": "المحلل",
+      "classes": "الفئات",
+      "rules": "القواعد",
+      "recording": "التسجيل",
+      "logging": "التسجيل"
+    },
+    "serial": {
+      "baudRate": "معدل البود",
+      "delimiter": "الفاصل",
+      "encoding": "الترميز"
+    },
+    "parser": {
+      "type": "نوع المحلل",
+      "types": {
+        "split": "تقسيم بالفاصل",
+        "regex": "تعبير نمطي",
+        "json": "JSON",
+        "custom": "محلل مخصص"
+      },
+      "splitDelimiter": "فاصل التقسيم",
+      "regexPattern": "نمط Regex",
+      "fields": "الحقول (مفصولة بفواصل)",
+      "skipLines": "تخطي الأسطر (أنماط، واحد لكل سطر)"
+    },
+    "classes": {
+      "id": "المعرف",
+      "name": "الاسم",
+      "addClass": "إضافة فئة",
+      "colors": {
+        "blue": "أزرق",
+        "green": "أخضر",
+        "purple": "بنفسجي",
+        "orange": "برتقالي",
+        "pink": "وردي",
+        "cyan": "سماوي",
+        "yellow": "أصفر",
+        "red": "أحمر"
+      }
+    },
+    "rules": {
+      "description": "حدد قواعد لتصنيف أو تجاهل أو تسجيل البيانات تلقائيًا بناءً على الشروط.",
+      "addRule": "إضافة قاعدة",
+      "actions": {
+        "label": "تعيين التصنيف",
+        "ignore": "تجاهل",
+        "log": "تسجيل فقط"
+      },
+      "labelValue": "قيمة التصنيف",
+      "examples": {
+        "title": "أمثلة على الشروط:",
+        "ex1": "value > 100",
+        "ex2": "line contains 'ERR'",
+        "ex3": "regex matches /^SYS:/"
+      }
+    },
+    "recording": {
+      "enableLabeling": "تفعيل تصنيف الفئات",
+      "autoStop": "توقف تلقائي بعد (بالثواني، 0 = معطل)"
+    },
+    "logging": {
+      "level": "مستوى السجل",
+      "maxEntries": "الحد الأقصى للإدخالات",
+      "persistLogs": "حفظ السجلات في تخزين المتصفح"
+    },
+    "import": "استيراد",
+    "export": "تصدير",
+    "reset": "إعادة تعيين",
+    "resetConfirm": "إعادة تعيين جميع الإعدادات إلى الافتراضية؟",
+    "invalidFile": "ملف إعدادات غير صالح"
+  },
+  "quickStart": {
+    "title": "دليل البدء السريع",
+    "step1": "قم بتكوين إعدادات المنفذ التسلسلي في قائمة الإعدادات.",
+    "step2": "حدد حقول البيانات وتصنيفات الفئات.",
+    "step3": "قم بتوصيل جهازك وتحقق من تدفق البيانات.",
+    "step4": "سجل عينات البيانات مع التصنيف الاختياري.",
+    "step5": "صدر مجموعة البيانات إلى CSV/JSON."
+  },
+  "visualization": {
+    "title": "تصور البيانات",
+    "sampling": "أخذ العينات",
+    "stepSize": "حجم الخطوة",
+    "columns": "الأعمدة",
+    "selectColumns": "حدد الأعمدة للعرض",
+    "noData": "لا توجد بيانات للتصور. ابدأ التسجيل لجمع البيانات.",
+    "samples": "{{count}} عينة",
+    "displayedSamples": "عرض {{displayed}} من {{total}} عينة",
+    "classLabels": "تصنيفات الفئات",
+    "showLabels": "عرض تصنيفات الفئات على الرسم البياني"
+  },
+  "footer": {
+    "copyright": "© {{year}} إطار عمل جامع البيانات التسلسلية. جميع الحقوق محفوظة.",
+    "author": "أنشأه شاطر مرزوقي"
+  },
+  "common": {
+    "close": "إغلاق"
+  }
+}

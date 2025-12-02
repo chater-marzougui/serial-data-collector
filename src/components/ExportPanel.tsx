@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Download, Trash2, Eye, FileText } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useApp } from "../context";
 
 export function ExportPanel() {
+  const { t } = useTranslation();
   const {
     config,
     updateConfig,
@@ -14,16 +16,16 @@ export function ExportPanel() {
   const [showPreview, setShowPreview] = useState(false);
 
   const preview = previewExport();
-  const validation = validateTemplate(config.export.template, config.fields);
+  const validation = validateTemplate(config.export.template, config.fields, t);
 
   return (
     <div className="space-y-4">
       {/* Template Editor */}
       <div>
-        <label className="block text-sm font-medium mb-1 text-gray-700">
-          Export Template
-          <span className="text-gray-400 ml-2 font-normal">
-            Use ${"{"}field{"}"} syntax
+        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+          {t("export.template")}
+          <span className="text-gray-400 dark:text-gray-500 ml-2 font-normal">
+            {t("export.templateHint")}
           </span>
         </label>
         <input
@@ -34,20 +36,20 @@ export function ExportPanel() {
               export: { ...config.export, template: e.target.value },
             })
           }
-          className="w-full bg-white rounded-md p-2 border border-gray-300 text-gray-900 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full bg-white dark:bg-gray-800 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="${timestamp},${value1},${label}"
         />
 
         {/* Validation warnings */}
         {validation.warnings.length > 0 && (
-          <div className="mt-2 text-yellow-600 text-xs space-y-1">
+          <div className="mt-2 text-yellow-600 dark:text-yellow-400 text-xs space-y-1">
             {validation.warnings.map((w, i) => (
               <p key={i}>⚠️ {w}</p>
             ))}
           </div>
         )}
         {validation.errors.length > 0 && (
-          <div className="mt-2 text-red-600 text-xs space-y-1">
+          <div className="mt-2 text-red-600 dark:text-red-400 text-xs space-y-1">
             {validation.errors.map((e, i) => (
               <p key={i}>❌ {e}</p>
             ))}
@@ -56,8 +58,8 @@ export function ExportPanel() {
 
         {/* Available fields */}
         <div className="mt-2 flex flex-wrap gap-1">
-          <span className="text-xs text-gray-500">Available:</span>
-          {["timestamp", "recordedAt", "label", "raw", ...config.fields].map(
+          <span className="text-xs text-gray-500 dark:text-gray-400">{t("export.available")}:</span>
+          {["timestamp", "recordedAt", "label", "raw", ...config.fields.filter(f => !["timestamp", "recordedAt", "label", "raw"].includes(f))].map(
             (field) => (
               <button
                 key={field}
@@ -69,7 +71,7 @@ export function ExportPanel() {
                     },
                   })
                 }
-                className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded border border-blue-100 hover:bg-blue-100"
+                className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded border border-blue-100 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50"
               >
                 ${"{"}
                 {field}
@@ -82,8 +84,8 @@ export function ExportPanel() {
 
       {/* Filename Template */}
       <div>
-        <label className="block text-sm font-medium mb-1 text-gray-700">
-          Filename Template
+        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
+          {t("export.filename")}
         </label>
         <input
           type="text"
@@ -93,7 +95,7 @@ export function ExportPanel() {
               export: { ...config.export, filename: e.target.value },
             })
           }
-          className="w-full bg-white rounded-md p-2 border border-gray-300 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full bg-white dark:bg-gray-800 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="data_export_${timestamp}"
         />
       </div>
@@ -109,13 +111,13 @@ export function ExportPanel() {
               export: { ...config.export, includeHeader: e.target.checked },
             })
           }
-          className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+          className="w-4 h-4 text-blue-600 rounded border-gray-300 dark:border-gray-600 focus:ring-blue-500"
         />
         <label
           htmlFor="includeHeader"
-          className="text-sm font-medium text-gray-700"
+          className="text-sm font-medium text-gray-700 dark:text-gray-300"
         >
-          Include header row
+          {t("export.includeHeader")}
         </label>
       </div>
 
@@ -124,21 +126,21 @@ export function ExportPanel() {
         <button
           onClick={() => setShowPreview(!showPreview)}
           disabled={recordedSamples.length === 0}
-          className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Eye className="w-4 h-4" />
-          {showPreview ? "Hide Preview" : "Show Preview"}
+          {showPreview ? t("export.hidePreview") : t("export.showPreview")}
         </button>
 
         {showPreview && recordedSamples.length > 0 && (
-          <div className="mt-2 bg-gray-50 rounded-md p-3 border border-gray-200 font-mono text-xs overflow-x-auto">
+          <div className="mt-2 bg-gray-50 dark:bg-gray-800 rounded-md p-3 border border-gray-200 dark:border-gray-700 font-mono text-xs overflow-x-auto">
             {preview.map((line, i) => (
               <div
                 key={i}
                 className={
                   i === 0 && config.export.includeHeader
-                    ? "text-blue-600 font-bold"
-                    : "text-gray-600"
+                    ? "text-blue-600 dark:text-blue-400 font-bold"
+                    : "text-gray-600 dark:text-gray-400"
                 }
               >
                 {line}
@@ -149,9 +151,9 @@ export function ExportPanel() {
       </div>
 
       {/* Sample count */}
-      <div className="flex items-center gap-2 text-sm text-gray-500">
+      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
         <FileText className="w-4 h-4" />
-        <span>{recordedSamples.length} samples ready for export</span>
+        <span>{t("export.samplesReady", { count: recordedSamples.length })}</span>
       </div>
 
       {/* Actions */}
@@ -162,17 +164,17 @@ export function ExportPanel() {
           className="flex-1 bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
         >
           <Download className="w-4 h-4" />
-          Export CSV
+          {t("export.exportCsv")}
         </button>
         <button
           onClick={() => {
-            if (confirm("Clear all recorded data?")) {
+            if (confirm(t("export.clearData"))) {
               clearRecordedSamples();
             }
           }}
           disabled={recordedSamples.length === 0}
-          className="p-2 bg-white text-red-600 border border-red-200 rounded-md hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Clear Data"
+          className="p-2 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+          title={t("liveStream.clear")}
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -183,7 +185,8 @@ export function ExportPanel() {
 
 function validateTemplate(
   template: string,
-  fields: string[]
+  fields: string[],
+  t: (key: string, options?: Record<string, string>) => string
 ): { warnings: string[]; errors: string[] } {
   const warnings: string[] = [];
   const errors: string[] = [];
@@ -198,18 +201,18 @@ function validateTemplate(
   // Check for unknown fields
   for (const name of placeholderNames) {
     if (!knownFields.includes(name)) {
-      warnings.push(`Unknown field: ${name}`);
+      warnings.push(t("export.validation.unknownField", { name }));
     }
   }
 
   // Check for empty template
   if (!template.trim()) {
-    errors.push("Template is empty");
+    errors.push(t("export.validation.emptyTemplate"));
   }
 
   // Check for unclosed placeholders
   if (template.match(/\$\{[^}]*$/)) {
-    errors.push("Unclosed placeholder");
+    errors.push(t("export.validation.unclosedPlaceholder"));
   }
 
   return { warnings, errors };

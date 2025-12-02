@@ -1,6 +1,8 @@
+import { useTranslation } from "react-i18next";
 import { useApp } from "../context";
 
 export function StatsPanel() {
+  const { t } = useTranslation();
   const { config, stats, recordedSamples } = useApp();
   const classes = config.classes;
   const enableLabeling = config.recording.enableLabeling;
@@ -11,10 +13,10 @@ export function StatsPanel() {
         <div className="space-y-3">
           {classes.map((cls) => (
             <div key={cls.id} className="flex justify-between items-center">
-              <span className="font-medium truncate mr-2 text-gray-700">
+              <span className="font-medium truncate mr-2 text-gray-700 dark:text-gray-300">
                 {cls.name}
               </span>
-              <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap border border-gray-200">
+              <span className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm font-bold whitespace-nowrap border border-gray-200 dark:border-gray-600">
                 {stats.classCounts[cls.id] || 0}
               </span>
             </div>
@@ -22,9 +24,9 @@ export function StatsPanel() {
 
           {/* Show unlabeled count if any */}
           {stats.classCounts["unlabeled"] && (
-            <div className="flex justify-between items-center text-gray-500">
-              <span className="font-medium">Unlabeled</span>
-              <span className="bg-gray-100 px-3 py-1 rounded-full text-sm font-bold border border-gray-200">
+            <div className="flex justify-between items-center text-gray-500 dark:text-gray-400">
+              <span className="font-medium">{t("stats.unlabeled")}</span>
+              <span className="bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full text-sm font-bold border border-gray-200 dark:border-gray-600">
                 {stats.classCounts["unlabeled"]}
               </span>
             </div>
@@ -33,27 +35,27 @@ export function StatsPanel() {
       ) : (
         <div>
           <div className="flex justify-between items-center">
-            <span className="font-medium text-gray-700">Samples</span>
-            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-bold border border-gray-200">
+            <span className="font-medium text-gray-700 dark:text-gray-300">{t("stats.samples")}</span>
+            <span className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm font-bold border border-gray-200 dark:border-gray-600">
               {stats.totalSamples}
             </span>
           </div>
         </div>
       )}
 
-      <div className="pt-3 border-t border-gray-200 flex justify-between items-center">
-        <span className="font-bold text-gray-900">Total Samples</span>
-        <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-bold">
+      <div className="pt-3 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+        <span className="font-bold text-gray-900 dark:text-white">{t("stats.totalSamples")}</span>
+        <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full text-sm font-bold">
           {recordedSamples.length}
         </span>
       </div>
 
       {stats.startTime && (
-        <div className="mt-4 text-sm text-gray-500">
-          <p>Started: {new Date(stats.startTime).toLocaleTimeString()}</p>
+        <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+          <p>{t("stats.started")}: {new Date(stats.startTime).toLocaleTimeString()}</p>
           {stats.lastSampleTime && (
             <p>
-              Last sample: {new Date(stats.lastSampleTime).toLocaleTimeString()}
+              {t("stats.lastSample")}: {new Date(stats.lastSampleTime).toLocaleTimeString()}
             </p>
           )}
         </div>
