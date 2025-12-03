@@ -279,8 +279,8 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                     fieldCounts.set(field, (fieldCounts.get(field) || 0) + 1);
                   });
                   const duplicates = Array.from(fieldCounts.entries())
-                    .filter(([_, count]) => count > 1)
-                    .map(([field, _]) => field);
+                    .filter(([, count]) => count > 1)
+                    .map(([field]) => field);
 
                   if (duplicates.length > 0) {
                     return (
@@ -326,20 +326,39 @@ export function ConfigPanel({ isOpen, onClose }: ConfigPanelProps) {
                   type="text"
                   value={config.fields.join(", ")}
                   onChange={(e) => {
-                    const value = e.target.value;
-                    // If the input ends with a comma or is being edited, keep it as-is temporarily
-                    // Only filter empty strings when there's no trailing comma or space
-                    const hasTrailingComma =
-                      value.endsWith(",") || value.endsWith(", ");
+                    // During typing, allow anything
+                    const fields = e.target.value
+                      .split(",")
+                      .map((f) => f.trim());
 
-                    const fields = value.split(",").map((f) => f.trim());
-
-                    // Only filter out empty strings if we're not actively typing
-                    const filteredFields = hasTrailingComma
-                      ? fields
-                      : fields.filter(Boolean);
                     updateConfig({
-                      fields: filteredFields,
+                      fields: fields,
+                    });
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Backspace") {
+                      const fields = (e.target as HTMLInputElement).value
+                        .split(",")
+                        .map((f) => f.trim());
+                      // Prevent removing fields if it would lead to empty field names
+                      if (fields.some((f) => f === "")) {
+                        e.preventDefault();
+                        fields.pop();
+                      }
+                      updateConfig({
+                        fields: fields,
+                      });
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Clean up empty entries only when user leaves the field
+                    const fields = e.target.value
+                      .split(",")
+                      .map((f) => f.trim())
+                      .filter(Boolean);
+
+                    updateConfig({
+                      fields: fields,
                     });
                   }}
                   className="w-full bg-white dark:bg-gray-700 rounded-md p-2 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"

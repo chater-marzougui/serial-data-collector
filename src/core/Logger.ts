@@ -1,5 +1,7 @@
 import type { LogLevel, LogEntry, SerialDirection } from "../types";
 
+const isProduction = import.meta.env.MODE === "production";
+
 type LogCallback = (entry: LogEntry) => void;
 
 class Logger {
@@ -40,7 +42,12 @@ class Logger {
     return this.levelPriority[level] >= this.levelPriority[this.level];
   }
 
-  private log(level: LogLevel, message: string, data?: unknown, direction?: SerialDirection): void {
+  private log(
+    level: LogLevel,
+    message: string,
+    data?: unknown,
+    direction?: SerialDirection
+  ): void {
     if (!this.shouldLog(level)) return;
 
     const entry: LogEntry = {
@@ -64,10 +71,12 @@ class Logger {
 
     const dirPrefix = direction ? `[${direction}] ` : "";
     const prefix = `[${level.toUpperCase()}]${dirPrefix}`;
-    if (data !== undefined) {
-      console.log(`%c${prefix} ${message}`, styles[level], data);
-    } else {
-      console.log(`%c${prefix} ${message}`, styles[level]);
+    if (!isProduction) {
+      if (data !== undefined) {
+        console.log(`%c${prefix} ${message}`, styles[level], data);
+      } else {
+        console.log(`%c${prefix} ${message}`, styles[level]);
+      }
     }
 
     // Notify subscribers
@@ -128,7 +137,9 @@ class Logger {
         const dirStr = e.direction ? ` [${e.direction}]` : "";
         const dataStr =
           e.data !== undefined ? ` | ${JSON.stringify(e.data)}` : "";
-        return `[${date}] [${e.level.toUpperCase()}]${dirStr} ${e.message}${dataStr}`;
+        return `[${date}] [${e.level.toUpperCase()}]${dirStr} ${
+          e.message
+        }${dataStr}`;
       })
       .join("\n");
 

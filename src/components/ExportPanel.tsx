@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Download, Trash2, Eye, FileText, Github } from "lucide-react";
+import { Download, Trash2, Eye, FileText } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useApp } from "../context";
 
@@ -111,8 +111,8 @@ export function ExportPanel() {
             counts.set(name, (counts.get(name) || 0) + 1);
           });
           const duplicates = Array.from(counts.entries())
-            .filter(([_, count]) => count > 1)
-            .map(([name, _]) => name);
+            .filter(([, count]) => count > 1)
+            .map(([name]) => name);
 
           if (duplicates.length > 0) {
             return (

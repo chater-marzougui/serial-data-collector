@@ -12,4 +12,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    "import.meta.env.VITE_APP_NAME": JSON.stringify("Serial Data Collector"),
+    "import.meta.env.VITE_APP_VERSION": JSON.stringify("1.0.0"),
+  },
 })
